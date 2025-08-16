@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { X, Plus } from 'lucide-react';
-import type { Task, User } from '../types';
+import React, { useState } from "react";
+import { X, Plus } from "lucide-react";
+import type { Task, User } from "../types";
 
 interface CreateTaskModalProps {
   users: User[];
   onClose: () => void;
-  onCreate: (task: Partial<Task>) => void;
+  onCreate: (task: Task) => void; // full Task, not Partial<Task>
 }
 
 export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
@@ -14,20 +14,37 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   onCreate,
 }) => {
   const [task, setTask] = useState<Partial<Task>>({
-    title: '',
-    description: '',
-    priority: 'Medium',
+    title: "",
+    description: "",
+    priority: "Medium",
     assigneeId: null,
     dueDate: null,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!task.title?.trim()) return;
-    
-    onCreate(task);
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!task.title?.trim()) return;
+
+  try {
+    const res = await fetch("http://localhost:4000/api/task", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      credentials: "include",
+      body: JSON.stringify(task),
+    });
+
+    const createdTask: Task = await res.json();
+
+    onCreate(createdTask); 
     onClose();
-  };
+  } catch (err) {
+    console.error("Failed to create task:", err);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -49,7 +66,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             </label>
             <input
               type="text"
-              value={task.title || ''}
+              value={task.title || ""}
               onChange={(e) => setTask({ ...task, title: e.target.value })}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -62,8 +79,10 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               Description
             </label>
             <textarea
-              value={task.description || ''}
-              onChange={(e) => setTask({ ...task, description: e.target.value })}
+              value={task.description || ""}
+              onChange={(e) =>
+                setTask({ ...task, description: e.target.value })
+              }
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Enter task description"
@@ -75,8 +94,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               Priority
             </label>
             <select
-              value={task.priority || 'Medium'}
-              onChange={(e) => setTask({ ...task, priority: e.target.value as Task['priority'] })}
+              value={task.priority || "Medium"}
+              onChange={(e) =>
+                setTask({
+                  ...task,
+                  priority: e.target.value as Task["priority"],
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="Low">Low</option>
@@ -90,13 +114,20 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               Assignee
             </label>
             <select
-              value={task.assigneeId || ''}
-              onChange={(e) => setTask({ ...task, assigneeId: e.target.value ? Number(e.target.value) : null })}
+              value={task.assigneeId || ""}
+              onChange={(e) =>
+                setTask({
+                  ...task,
+                  assigneeId: e.target.value ? Number(e.target.value) : null,
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Select assignee</option>
-              {users.map(user => (
-                <option key={user.id} value={user.id}>{user.email}</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.email}
+                </option>
               ))}
             </select>
           </div>
@@ -107,8 +138,10 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             </label>
             <input
               type="date"
-              value={task.dueDate ? task.dueDate.split('T')[0] : ''}
-              onChange={(e) => setTask({ ...task, dueDate: e.target.value || null })}
+              value={task.dueDate ? task.dueDate.split("T")[0] : ""}
+              onChange={(e) =>
+                setTask({ ...task, dueDate: e.target.value || null })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
