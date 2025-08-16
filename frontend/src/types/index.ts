@@ -5,14 +5,16 @@ export interface User {
   updatedAt: string;
 }
 
+export type TaskStatus = "Backlog" | "In Progress" | "Review" | "Done" ;
+
 export interface Task {
   id: number;
   title: string;
   description?: string;
   priority: "Low" | "Medium" | "High";
   assigneeId: number | null;
-  assigneeEmail?: string; 
-  status: "Todo" | "In Progress" | "Review" | "Done";
+  assigneeEmail?: string | null;
+  status: TaskStatus;
   dueDate: string | null;
   createdAt: string;
   updatedAt: string;

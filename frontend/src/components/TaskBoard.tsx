@@ -80,44 +80,58 @@ export const TaskBoard: React.FC = () => {
         credentials: "include",
       });
 
+      if (!res.ok) throw new Error("Failed to move task");
+
       const updatedTask = await res.json();
-      setTasks(tasks.map((t) => (t.id === taskId ? updatedTask : t)));
+
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...updatedTask } : t))
+      );
     } catch (err) {
       console.error("Failed to move task:", err);
     }
   };
 
   const handleTaskUpdate = (updatedTask: Task) => {
-    if (updatedTask.assigneeId) {
-      const user = users.find((u) => u.id === updatedTask.assigneeId);
-      if (user) {
-        updatedTask.assigneeEmail = user.email;
-      }
-    } else {
-      updatedTask.assigneeEmail = null;
-    }
-
-    setTasks(
-      tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
-    setSelectedTask(updatedTask);
-  };
-
-  const handleTaskDelete = (taskId: number) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
-    setSelectedTask(null);
-  };
-
-  const handleTaskCreate = (newTask: Task) => {
+    const newTask = { ...updatedTask };
     if (newTask.assigneeId) {
       const user = users.find((u) => u.id === newTask.assigneeId);
       if (user) {
         newTask.assigneeEmail = user.email;
       }
-    } else {
-      newTask.assigneeEmail = null;
     }
-    setTasks([...tasks, newTask]);
+    setTasks((prev) => prev.map((t) => (t.id === newTask.id ? newTask : t)));
+    setSelectedTask(newTask);
+  };
+
+  const handleTaskDelete = async (taskId: number) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/task/${taskId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete task");
+
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+      setSelectedTask(null);
+    } catch (err) {
+      console.error("Task delete failed:", err);
+    }
+  };
+
+  const handleTaskCreate = (newTask: Task) => {
+    const taskCopy = { ...newTask };
+    if (taskCopy.assigneeId) {
+      const user = users.find((u) => u.id === taskCopy.assigneeId);
+      if (user) {
+        taskCopy.assigneeEmail = user.email;
+      }
+    }
+    setTasks((prev) => [...prev, taskCopy]);
   };
 
   const handleFilterChange = (type: "assignee" | "priority", value: string) => {
