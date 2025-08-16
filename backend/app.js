@@ -2,9 +2,10 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectToDb = require("./db/db");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
 const app = express();
+const errorHandler = require('./middlewares/errorHandler.middlewares');
 const userRoutes = require('./routes/UserRoutes');
+const taskRoutes = require('./routes/TaskRoutes')
 dotenv.config();
 
 connectToDb();
@@ -12,11 +13,13 @@ connectToDb();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 
 //routing of different models
 app.use('/api/auth',userRoutes);
+app.use('/api/task',taskRoutes);
+
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
