@@ -40,7 +40,7 @@ export const AuthForm: React.FC = () => {
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h1>
           <p className="text-gray-600">
-            {isLogin ? 'Sign in to your Kanban board' : 'Join us to manage your tasks'}
+            {isLogin ? 'Sign in to your Task board' : 'Join us to manage your tasks'}
           </p>
         </div>
 

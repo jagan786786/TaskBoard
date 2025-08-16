@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { X, Plus } from "lucide-react";
 import type { Task, User } from "../types";
 
+const API_BASE_URL = "http://localhost:4000/api";
+
 interface CreateTaskModalProps {
   users: User[];
   onClose: () => void;
-  onCreate: (task: Task) => void; // full Task, not Partial<Task>
+  onCreate: (task: Task) => void;
 }
 
 export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
@@ -20,31 +22,37 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     assigneeId: null,
     dueDate: null,
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!task.title?.trim()) return;
+    e.preventDefault();
+    if (!task.title?.trim()) return;
 
-  try {
-    const res = await fetch("http://localhost:4000/api/task", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      credentials: "include",
-      body: JSON.stringify(task),
-    });
+    try {
+      setIsLoading(true);
+      const res = await fetch(`${API_BASE_URL}/task`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify(task),
+      });
 
-    const createdTask: Task = await res.json();
+      if (!res.ok) {
+        throw new Error("Failed to create task");
+      }
 
-    onCreate(createdTask); 
-    onClose();
-  } catch (err) {
-    console.error("Failed to create task:", err);
-  }
-};
-
+      const createdTask: Task = await res.json();
+      onCreate(createdTask);
+      onClose();
+    } catch (err) {
+      console.error("Failed to create task:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -156,10 +164,11 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors flex items-center"
+              disabled={isLoading || !task.title?.trim()}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors flex items-center disabled:opacity-50"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Create Task
+              {isLoading ? "Creating..." : "Create Task"}
             </button>
           </div>
         </form>

@@ -35,9 +35,19 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Helper function to get assignee email from users array
+  const getAssigneeEmail = (assigneeId: number | null): string | null => {
+    if (!assigneeId) return null;
+    const assignee = users.find(user => user.id === assigneeId);
+    return assignee?.email || null;
+  };
+
   useEffect(() => {
     if (task) {
-      setEditTask(task);
+      setEditTask({
+        ...task,
+        assigneeId: task.assigneeId ?? null,
+      });
       loadComments();
     }
   }, [task]);
@@ -70,6 +80,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         body: JSON.stringify(editTask),
         credentials: "include",
       });
+
       const updatedTask = await res.json();
       onUpdate(updatedTask);
       setIsEditing(false);
@@ -86,7 +97,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       try {
         await fetch(`${API_BASE_URL}/task/${task.id}`, {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${localStorage.getToken("token")}` },
           credentials: "include",
         });
         onDelete(task.id);
@@ -125,6 +136,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     Medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
     Low: "bg-green-100 text-green-800 border-green-200",
   };
+
+  // Get the current assignee email
+  const currentAssigneeEmail = getAssigneeEmail(task.assigneeId);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -259,7 +273,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 <div className="flex items-center">
                   <User className="w-4 h-4 mr-2 text-gray-500" />
                   <span className="text-gray-600">
-                    {task.assigneeEmail || "Unassigned"}
+                    {currentAssigneeEmail || "Unassigned"}
                   </span>
                 </div>
               )}

@@ -88,6 +88,15 @@ export const TaskBoard: React.FC = () => {
   };
 
   const handleTaskUpdate = (updatedTask: Task) => {
+    if (updatedTask.assigneeId) {
+      const user = users.find((u) => u.id === updatedTask.assigneeId);
+      if (user) {
+        updatedTask.assigneeEmail = user.email;
+      }
+    } else {
+      updatedTask.assigneeEmail = null;
+    }
+
     setTasks(
       tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
     );
@@ -100,6 +109,14 @@ export const TaskBoard: React.FC = () => {
   };
 
   const handleTaskCreate = (newTask: Task) => {
+    if (newTask.assigneeId) {
+      const user = users.find((u) => u.id === newTask.assigneeId);
+      if (user) {
+        newTask.assigneeEmail = user.email;
+      }
+    } else {
+      newTask.assigneeEmail = null;
+    }
     setTasks([...tasks, newTask]);
   };
 
