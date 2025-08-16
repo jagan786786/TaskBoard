@@ -46,3 +46,19 @@ exports.login = async (req, res, next) => {
     next(err);
   }
 };
+
+
+exports.getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({}, { passwordHash: 0 });
+
+    res.json(
+      users.map((u) => ({
+        id: u._id,
+        email: u.email,
+      }))
+    );
+  } catch (err) {
+    next(err);
+  }
+};

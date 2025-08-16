@@ -3,12 +3,13 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import type { Task, User } from '../types';
 
-import { useApi } from '../hooks/useApi';
 import { TaskColumn } from './TaskColumn';
 import { TaskModal } from './TaskModal';
 import { CreateTaskModal } from './CreateTaskModal';
 import { Filters } from './Filters';
 import { Header } from './Header';
+
+const API_BASE_URL = "http://localhost:4000/api";
 
 export const TaskBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -22,7 +23,6 @@ export const TaskBoard: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   
-  const api = useApi();
 
   const columns = [
     { title: 'Backlog', status: 'Backlog' as const },
@@ -36,31 +36,52 @@ export const TaskBoard: React.FC = () => {
   }, [filters]);
 
   const loadData = async () => {
-    try {
-      setIsLoading(true);
-      const [tasksData, usersData] = await Promise.all([
-        api.getTasks(filters),
-        api.getUsers(),
-      ]);
-      setTasks(tasksData);
-      setUsers(usersData);
-    } catch (error) {
-      console.error('Failed to load data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  try {
+    setIsLoading(true);
 
-  const handleTaskMove = async (taskId: number, newStatus: Task['status']) => {
-    try {
-      const updatedTask = await api.updateTaskStatus(taskId, newStatus);
-      setTasks(tasks.map(task => 
-        task.id === taskId ? updatedTask : task
-      ));
-    } catch (error) {
-      console.error('Failed to update task status:', error);
-    }
-  };
+    const [tasksRes, usersRes] = await Promise.all([
+      fetch(`${API_BASE_URL}/task?assigneeId=${filters.assignee}&priority=${filters.priority}`, {
+        credentials: "include", // if auth uses cookies
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }, // if using JWT
+      }),
+      fetch(`${API_BASE_URL}/users`, {
+        credentials: "include",
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+      }),
+    ]);
+
+    const [tasksData, usersData] = await Promise.all([
+      tasksRes.json(),
+      usersRes.json(),
+    ]);
+
+    setTasks(tasksData);
+    setUsers(usersData);
+  } catch (error) {
+    console.error("Failed to load data:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleTaskMove = async (taskId: string, newStatus: Task["status"]) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/task/${taskId}/move`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ status: newStatus }),
+      credentials: "include",
+    });
+
+    const updatedTask = await res.json();
+    setTasks(tasks.map((t) => (t.id === taskId ? updatedTask : t)));
+  } catch (err) {
+    console.error("Failed to move task:", err);
+  }
+};
 
   const handleTaskUpdate = (updatedTask: Task) => {
     setTasks(tasks.map(task => 
@@ -69,18 +90,7 @@ export const TaskBoard: React.FC = () => {
     setSelectedTask(updatedTask);
   };
 
-  const handleTaskDelete = (taskId: number) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-  };
-
-  const handleTaskCreate = async (taskData: Partial<Task>) => {
-    try {
-      const newTask = await api.createTask(taskData);
-      setTasks([newTask, ...tasks]);
-    } catch (error) {
-      console.error('Failed to create task:', error);
-    }
-  };
+ 
 
   const handleFilterChange = (type: 'assignee' | 'priority', value: string) => {
     setFilters(prev => ({ ...prev, [type]: value }));
