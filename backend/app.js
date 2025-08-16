@@ -5,7 +5,8 @@ const cors = require("cors");
 const app = express();
 const errorHandler = require('./middlewares/errorHandler.middlewares');
 const userRoutes = require('./routes/UserRoutes');
-const taskRoutes = require('./routes/TaskRoutes')
+const taskRoutes = require('./routes/TaskRoutes');
+const commentRoutes = require('./routes/CommentRoutes');
 dotenv.config();
 
 connectToDb();
@@ -15,9 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-//routing of different models
 app.use('/api/auth',userRoutes);
 app.use('/api/task',taskRoutes);
+app.use('/api/comment',commentRoutes)
 
 app.use(errorHandler);
 
