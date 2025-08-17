@@ -9,7 +9,7 @@ import { CreateTaskModal } from "./CreateTaskModal";
 import { Filters } from "./Filters";
 import { Header } from "./Header";
 
-const API_BASE_URL = "http://localhost:4000/api";
+const API_BASE_URL = "https://taskboard-0qzt.onrender.com/api";
 
 export const TaskBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
