@@ -11,27 +11,15 @@ dotenv.config();
 
 connectToDb();
 
-const allowList = new Set(
-  [
-    "http://localhost:5173",      
-  ].filter(Boolean)
-);
-
-const corsOptionsDelegate = function (req, callback) {
-  const requestOrigin = req.header("Origin");
-  const isAllowed = !requestOrigin || allowList.has(requestOrigin);
-  const corsOptions = {
-    origin: isAllowed ? requestOrigin : false,
+app.use(
+  cors({
+    origin: "http://localhost:5173",
     credentials: true,
-    methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 204,
-  };
-  callback(null, corsOptions);
-};
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(cors(corsOptionsDelegate));
-app.options("*", cors(corsOptionsDelegate));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
