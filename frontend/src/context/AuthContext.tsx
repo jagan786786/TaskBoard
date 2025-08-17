@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AuthContext } from './auth-context';
 import type { User } from '../types';
 
-const API_BASE_URL = "https://taskboard-onzv.onrender.com/api/auth";
+const API_BASE_URL = "https://taskboard-0qzt.onrender.com/api/auth";
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
