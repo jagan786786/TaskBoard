@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useDrag } from "react-dnd";
 import { format } from "date-fns";
 import type { Task } from "../types";
@@ -16,6 +16,8 @@ interface TaskCardProps {
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id, status: task.status },
@@ -23,6 +25,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
       isDragging: monitor.isDragging(),
     }),
   }));
+
+  drag(ref); // attach drag to ref
 
   const priorityColors = {
     High: "bg-red-100 text-red-800 border-red-200",
@@ -44,7 +48,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
 
   return (
     <div
-      ref={(node) => drag(node)}
+      ref={ref}
       onClick={onClick}
       className={`bg-white rounded-lg p-4 shadow-sm border border-gray-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-300 ${
         isDragging ? "opacity-50" : ""

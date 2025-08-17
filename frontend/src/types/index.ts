@@ -16,6 +16,7 @@ export interface Task {
   assigneeEmail?: string | null;
   status: TaskStatus;
   dueDate: string | null;
+  badge: 'On Track' | 'At Risk' | 'Overdue' | null;
   createdAt: string;
   updatedAt: string;
 }

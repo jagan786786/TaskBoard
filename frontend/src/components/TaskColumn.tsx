@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useDrop } from "react-dnd";
 import type { Task } from "../types";
 import { TaskCard } from "./TaskCard";
@@ -18,6 +18,8 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
   onTaskMove,
   onTaskClick,
 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
     drop: (item: { id: string; status: Task["status"] }) => {
@@ -29,6 +31,8 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
       isOver: monitor.isOver(),
     }),
   }));
+
+  drop(ref); // attach drop to ref
 
   const statusColors = {
     Backlog: "border-gray-300 bg-gray-50",
@@ -45,7 +49,7 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
       </div>
 
       <div
-        ref={drop}
+        ref={ref}
         className={`min-h-96 p-4 rounded-lg border-2 border-dashed transition-colors ${
           isOver ? "border-indigo-400 bg-indigo-50" : statusColors[status]
         }`}
