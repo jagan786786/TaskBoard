@@ -14,7 +14,6 @@ connectToDb();
 const allowList = new Set(
   [
     process.env.CLIENT_URL,       
-    process.env.CLIENT_URL_2,    
     "http://localhost:5173",      
   ].filter(Boolean)
 );
