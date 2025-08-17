@@ -7,7 +7,7 @@ for the storing the data mongodb is used to make it responsive and dynamic.
 
 The application is useful for the management of the works among the team members where all can work according to the work. In this application I integrated comment part to give feedback about the performance of the assigning task. According to the given comment the assigned developer read the comment carefully and implemented in the task to make it more responsive. The frontend is made using react and hepler ui classes. It have the samrt staus badge to see the status of the task and implemented smooth drag and drop functionality to make the dynamic changes of the task from one board to the other board. It has also advanced filtering based on assignne and priority of the task. The backend is made up of using node.js, express.js and for the database monogDB. The backend consist of RESTful APIs which help to JSON responce using HTTP request and for secure purpose JWT Authentication also implemented. CRUD Operations for  full task and comment management as well as badge logic Server calculated status badges and real-time uupdates  instant data persistence.
 
-## Tecchnologies
+## Technologies
 -- Frontend - React
 -- Backent - Node.js, Express.js and MongoDB
 
