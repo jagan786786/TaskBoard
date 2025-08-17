@@ -22,7 +22,7 @@ interface TaskModalProps {
   users: UserType[];
   onClose: () => void;
   onUpdate: (task: Task) => void;
-  onDelete: (taskId: number) => void;
+  onDelete: (taskId: string) => void;
 }
 
 export const TaskModal: React.FC<TaskModalProps> = ({
@@ -38,7 +38,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const getAssigneeEmail = (assigneeId: number | null): string | null => {
+  const getAssigneeEmail = (assigneeId: string | null): string | null => {
     if (!assigneeId) return null;
     const assignee = users.find((user) => user.id === assigneeId);
     return assignee?.email || null;
@@ -319,12 +319,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     onChange={(e) =>
                       setEditTask({
                         ...editTask,
-                        assigneeId: e.target.value
-                          ? Number(e.target.value)
-                          : null,
+                        assigneeId: e.target.value || null, // ✅ keep string
                       })
                     }
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all bg-gray-50/50"
                   >
                     <option value="">Unassigned</option>
                     {users.map((user) => (
@@ -425,7 +422,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 Comments ({comments.length})
               </h4>
 
-              {/* Comments List */}
               <div className="space-y-4 mb-6">
                 {comments.map((comment) => (
                   <div

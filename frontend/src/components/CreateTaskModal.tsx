@@ -55,22 +55,38 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   };
 
   const priorityConfig = {
-    High: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-400' },
-    Medium: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-400' },
-    Low: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-400' },
+    High: {
+      bg: "bg-red-50",
+      text: "text-red-700",
+      border: "border-red-200",
+      dot: "bg-red-400",
+    },
+    Medium: {
+      bg: "bg-amber-50",
+      text: "text-amber-700",
+      border: "border-amber-200",
+      dot: "bg-amber-400",
+    },
+    Low: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      border: "border-emerald-200",
+      dot: "bg-emerald-400",
+    },
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-gray-200/50 max-h-[90vh] overflow-hidden">
-        {/* Header */}
         <div className="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
                 <Plus className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Create New Task</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Create New Task
+              </h2>
             </div>
             <button
               onClick={onClose}
@@ -83,7 +99,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
         <div className="overflow-y-auto max-h-[calc(90vh-100px)]">
           <form onSubmit={handleSubmit} className="px-8 py-6 space-y-6">
-            {/* Title */}
             <div>
               <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
                 <FileText className="w-4 h-4 mr-2" />
@@ -99,7 +114,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Description
@@ -115,19 +129,24 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               />
             </div>
 
-            {/* Task Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Priority */}
               <div>
                 <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
                   <Flag className="w-4 h-4 mr-2" />
                   Priority
                 </label>
                 <div className="space-y-2">
-                  {(Object.keys(priorityConfig) as Array<keyof typeof priorityConfig>).map((priority) => {
+                  {(
+                    Object.keys(priorityConfig) as Array<
+                      keyof typeof priorityConfig
+                    >
+                  ).map((priority) => {
                     const config = priorityConfig[priority];
                     return (
-                      <label key={priority} className="flex items-center cursor-pointer">
+                      <label
+                        key={priority}
+                        className="flex items-center cursor-pointer"
+                      >
                         <input
                           type="radio"
                           name="priority"
@@ -141,14 +160,25 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                           }
                           className="sr-only"
                         />
-                        <div className={`flex items-center px-4 py-2.5 rounded-xl border-2 transition-all w-full ${
-                          task.priority === priority 
-                            ? `${config.bg} ${config.text} ${config.border} ring-2 ring-offset-1 ${config.border.replace('border-', 'ring-')}`
-                            : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                        }`}>
-                          <div className={`w-2.5 h-2.5 rounded-full mr-3 ${
-                            task.priority === priority ? config.dot : 'bg-gray-300'
-                          }`}></div>
+                        <div
+                          className={`flex items-center px-4 py-2.5 rounded-xl border-2 transition-all w-full ${
+                            task.priority === priority
+                              ? `${config.bg} ${config.text} ${
+                                  config.border
+                                } ring-2 ring-offset-1 ${config.border.replace(
+                                  "border-",
+                                  "ring-"
+                                )}`
+                              : "border-gray-200 text-gray-600 hover:border-gray-300"
+                          }`}
+                        >
+                          <div
+                            className={`w-2.5 h-2.5 rounded-full mr-3 ${
+                              task.priority === priority
+                                ? config.dot
+                                : "bg-gray-300"
+                            }`}
+                          ></div>
                           <span className="font-medium">{priority}</span>
                         </div>
                       </label>
@@ -168,14 +198,14 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                   onChange={(e) =>
                     setTask({
                       ...task,
-                      assigneeId: e.target.value ? Number(e.target.value) : null,
+                      assigneeId: e.target.value || null, 
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all bg-gray-50/50"
                 >
                   <option value="">Select assignee</option>
                   {users.map((user) => (
                     <option key={user.id} value={user.id}>
+                      {" "}
                       {user.email}
                     </option>
                   ))}
@@ -183,7 +213,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               </div>
             </div>
 
-            {/* Due Date */}
             <div>
               <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
                 <Calendar className="w-4 h-4 mr-2" />
@@ -199,7 +228,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               />
             </div>
 
-            {/* Actions */}
             <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
               <button
                 type="button"

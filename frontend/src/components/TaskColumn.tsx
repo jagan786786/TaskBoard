@@ -7,7 +7,7 @@ interface TaskColumnProps {
   title: string;
   status: Task["status"];
   tasks: Task[];
-  onTaskMove: (taskId: number, newStatus: Task["status"]) => void;
+  onTaskMove: (taskId: string, newStatus: Task["status"]) => void;
   onTaskClick: (task: Task) => void;
 }
 
@@ -20,7 +20,7 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
 }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
-    drop: (item: { id: number; status: Task["status"] }) => {
+    drop: (item: { id: string; status: Task["status"] }) => {
       if (item.status !== status) {
         onTaskMove(item.id, status);
       }

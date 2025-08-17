@@ -68,7 +68,7 @@ export const TaskBoard: React.FC = () => {
     }
   };
 
-  const handleTaskMove = async (taskId: number, newStatus: Task["status"]) => {
+  const handleTaskMove = async (taskId: string, newStatus: Task["status"]) => {
     try {
       const res = await fetch(`${API_BASE_URL}/task/${taskId}/move`, {
         method: "PATCH",
@@ -104,7 +104,7 @@ export const TaskBoard: React.FC = () => {
     setSelectedTask(newTask);
   };
 
-  const handleTaskDelete = async (taskId: number) => {
+  const handleTaskDelete = async (taskId: string) => {
     try {
       const res = await fetch(`${API_BASE_URL}/task/${taskId}`, {
         method: "DELETE",
@@ -122,7 +122,6 @@ export const TaskBoard: React.FC = () => {
       console.error("Task delete failed:", err);
     }
   };
-
   const handleTaskCreate = (newTask: Task) => {
     const taskCopy = { ...newTask };
     if (taskCopy.assigneeId) {

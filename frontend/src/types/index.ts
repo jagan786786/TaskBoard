@@ -1,18 +1,18 @@
 export interface User {
-  id: number;
+  id: string;
   email: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export type TaskStatus = "Backlog" | "In Progress" | "Review" | "Done" ;
+export type TaskStatus = "Backlog" | "In Progress" | "Review" | "Done";
 
 export interface Task {
-  id: number;
+  id: string;
   title: string;
   description?: string;
   priority: "Low" | "Medium" | "High";
-  assigneeId: number | null;
+  assigneeId: string | null;
   assigneeEmail?: string | null;
   status: TaskStatus;
   dueDate: string | null;
@@ -21,10 +21,10 @@ export interface Task {
 }
 
 export interface Comment {
-  id: number;
+  id: string;
   body: string;
-  taskId: number;
-  authorId: number;
+  taskId: string;
+  authorId: string;
   authorEmail: string;
   createdAt: string;
   updatedAt: string;
