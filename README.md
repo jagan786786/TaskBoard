@@ -32,20 +32,29 @@ BCRYPT_SALT_ROUNDS=10 (as per the requiremnt)
 
 Here is the total description of collections required for the application to store the data and present it dynamically:
 
-User Collection -                                        Task Collection - 
+User Collection -                                   
 
-{                                                        {
-  id: ObjectId,                                            id: ObjectId,
-  email: String,   //must be unisque                       title: String,       
-  passwordHash: String,                                    description: String,
-  createdAt: Date                                          priority: { type: String, enum: ["Low", "Medium", "High"], default: "Medium" },
-}                                                          assigneeId: ObjectId,       ------>                                 //reference of the User Collection
-                                                           status: { type: String, enum: ["Backlog", "In Progress", "Review", "Done"], default: "Backlog" },
-                                                           dueDate: Date,
-                                                           createdAt: Date,
-                                                           updatedAt: Date
-                                                        }
+{                                                         
+    id: ObjectId,
+    email: String,   //must be unisque                                                 
+    passwordHash: String,                                                     
+    createdAt: Date                                                                                        
+                                            
+}                                                          
 
+Task Collection - 
+
+ {
+       id: ObjectId,
+       title: String,   
+       description: String,
+       priority: { type: String, enum: ["Low", "Medium", "High"], default: "Medium" },
+       assigneeId: ObjectId,    //reference of the User Collection
+       status: { type: String, enum: ["Backlog", "In Progress", "Review", "Done"], default: "Backlog" },
+       dueDate: Date,
+       createdAt: Date,
+       updatedAt: Date
+ }
 
   Comments Collection - 
 
