@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { Task, Comment, User as UserType } from "../types";
 
-const API_BASE_URL = "https://taskboard-onzv.onrender.com/api";
+const API_BASE_URL = "https://taskboard-0qzt.onrender.com/api";
 
 interface TaskModalProps {
   task: Task | null;
