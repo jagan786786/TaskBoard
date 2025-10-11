@@ -4,7 +4,7 @@ pipeline {
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
         GITHUB_TOKEN = credentials('github-token')  // internal repo
-        PAT = credentials('pat-token')              // external repo
+        PAT = credentials('pat_token')              // external repo
         BRANCH = 'main'
     }
 
