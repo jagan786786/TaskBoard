@@ -22,6 +22,9 @@ exports.addComment = async (req, res, next) => {
     //gsngdkjgnskfndskfnskgndkdnasfgsfgfkjsngks
     console.log(comment);
     //fsdjfskjsdgsdkjgnsfkjgnsf
+
+    //fsbfsjfbsjkfnsdkjfsdkfnsdkfdbsj
+    console.log();
     
     // flatten author
     res.status(201).json({
