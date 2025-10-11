@@ -14,7 +14,7 @@ The application is useful for the management of the works among the team members
 
 ### Prerequisites:
 - Node.js (v16 or higher)
-- npm or yarn
+- npm or yarn or bun
 
 ## How to run:
 Firstly check that if the node is installed or not in the system then pull the repository or download the repository from the github and place it in the directory 
