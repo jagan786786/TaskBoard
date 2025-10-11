@@ -41,22 +41,22 @@ pipeline {
             }
         }
 
-        stage('Commit Task Version to TaskBoard') {
-            steps {
-                sh '''
-                    git config user.name "jenkins-bot"
-                    git config user.email "jenkins-bot@example.com"
-                    
-                    git add task_version/*
-                    if ! git diff --cached --quiet; then
-                        git commit -m "chore: add task version files"
-                        git push origin HEAD:${BRANCH}
-                    else
-                        echo "No new version files to commit"
-                    fi
-                '''
-            }
-        }
+       stage('Commit Task Version to Test Repo') {
+    steps {
+        bat '''
+            git config user.name "jenkins-bot"
+            git config user.email "jenkins-bot@example.com"
+            
+            git add task_version/*
+            if not git diff --cached --quiet (
+                git commit -m "chore: add task version files"
+                git push origin HEAD:%BRANCH%
+            ) else (
+                echo No new version files to commit
+            )
+        '''
+    }
+}
 
         stage('Push Latest Version to External Repo') {
             steps {
