@@ -15,6 +15,10 @@ exports.addComment = async (req, res, next) => {
     if (!task) return res.status(404).json({ message: "Task not found" });
 
     let comment = await Comment.create({ taskId, authorId, body });
+
+    Console.log(comment);
+
+    //Log to the comment to know better
     comment = await comment.populate("authorId", "email");
 
     // flatten author
