@@ -63,36 +63,33 @@ pipeline {
 
         stage('Push Latest Version to External Repo') {
             steps {
-                withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
-                    bat '''
-                        set "PATH=C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin;%PATH%"
-                        git --version
-                        git config --global user.name "jenkins-bot"
-                        git config --global user.email "jenkins-bot@example.com"
-        
-                        echo Cloning external repo...
-                        git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
-        
-                        if not exist external_repo\\build_task_version mkdir external_repo\\build_task_version
-        
-                        REM Get the latest file from task_version folder
-                        for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
-                        :break
-        
-                        copy task_version\\%LATEST_FILE% external_repo\\build_task_version\\%LATEST_FILE%
-        
-                        cd external_repo
-                        git add build_task_version\\%LATEST_FILE%
-                        git diff --cached --quiet || (
-                            git commit -m "chore: add latest task version %LATEST_FILE%"
-                            git branch -M main
-                            git push -u origin main
-                        )
-                    '''
+                withCredentials([string(credentialsId: 'pat_token', variable: 'PAT')]) {
+                bat '''
+                    git config --global user.name "jenkins-bot"
+                    git config --global user.email "jenkins-bot@example.com"
+
+                    echo Cloning external repo...
+                    git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
+
+                    if not exist external_repo\\build_task_version mkdir external_repo\\build_task_version
+
+                    REM Get the latest file from task_version folder
+                    for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
+                    :break
+
+                    copy task_version\\%LATEST_FILE% external_repo\\build_task_version\\%LATEST_FILE%
+
+                    cd external_repo
+                    git add build_task_version\\%LATEST_FILE%
+                    git diff --cached --quiet || (
+                        git commit -m "chore: add latest task version %LATEST_FILE%"
+                        git branch -M main
+                        git push -u origin main
+                    )
+                '''
                 }
             }
         }
-
 
         stage('Bump Version') {
             steps {
