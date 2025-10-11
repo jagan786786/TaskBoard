@@ -2,16 +2,17 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_TOKEN = credentials('github-token')
-        PAT = credentials('pat-token')
+        GITHUB_TOKEN = credentials('github-token')  // internal repo
+        PAT = credentials('pat-token')              // external repo
         BRANCH = 'main'
     }
 
     triggers {
-        pollSCM('* * * * *')
+        pollSCM('* * * * *')  // optional; you can use GitHub webhook instead
     }
 
     stages {
+
         stage('Checkout Source') {
             steps {
                 echo "Checking out source branch ${BRANCH}"
@@ -22,7 +23,7 @@ pipeline {
         stage('Prepare Version Folder') {
             steps {
                 bat '''
-                    mkdir task_version
+                    if not exist task_version mkdir task_version
                     echo Preparing version folder
                 '''
             }
@@ -45,6 +46,7 @@ pipeline {
                 bat '''
                     git config user.name "jenkins-bot"
                     git config user.email "jenkins-bot@example.com"
+
                     git add task_version\\*
                     git diff --cached --quiet || (
                         git commit -m "chore: add task version files"
@@ -62,10 +64,13 @@ pipeline {
 
                     echo Cloning external repo...
                     git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
-                    mkdir external_repo\\build_task_version
 
+                    if not exist external_repo\\build_task_version mkdir external_repo\\build_task_version
+
+                    REM Get the latest file from task_version folder
                     for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
                     :break
+
                     copy task_version\\%LATEST_FILE% external_repo\\build_task_version\\%LATEST_FILE%
 
                     cd external_repo
