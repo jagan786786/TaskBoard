@@ -44,6 +44,7 @@ pipeline {
         stage('Commit Task Version to Test Repo') {
             steps {
                 bat '''
+                    set "PATH=C:\\Windows\\System32;C:\\Windows;E:\\Git\\usr\\bin;E:\\Git\\cmd;%PATH%"
                     git config user.name "jenkins-bot"
                     git config user.email "jenkins-bot@example.com"
 
