@@ -9,7 +9,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM('* * * * *')  // optional; you can use GitHub webhook instead
+        pollSCM('* * * * *')  // optional; can use GitHub webhook instead
     }
 
     stages {
@@ -42,32 +42,32 @@ pipeline {
             }
         }
 
-        stage('Commit Task Version to Test Repo') {
+        stage('Commit Task Version to Main Repo') {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                bat '''
-                    git config user.name "jenkins-bot"
-                    git config user.email "jenkins-bot@example.com"
+                    bat '''
+                        git config user.name "jenkins-bot"
+                        git config user.email "jenkins-bot@example.com"
 
-                    git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
+                        git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
 
-                    git add task_version\\*
-                    git diff --cached --quiet || (
-                        git commit -m "chore: add task version files"
-                        git push origin HEAD:%BRANCH%
-                    )
-                '''
+                        git add task_version\\*
+                        git diff --cached --quiet || (
+                            git commit -m "chore: add task version files"
+                            git push origin HEAD:%BRANCH%
+                        )
+                    '''
                 }
             }
         }
 
-       stage('Push Latest Version to External Repo') {
+        stage('Push Latest Version to External Repo') {
             steps {
                 withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
                     bat '''
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
-        
+
                         REM Clone external repo if it doesn't exist
                         if not exist external_repo (
                             git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
@@ -76,20 +76,20 @@ pipeline {
                             git pull origin main
                             cd ..
                         )
-        
-                        REM Ensure build_task_version folder exists
-                        if not exist external_repo\\build_task_version mkdir external_repo\\build_task_version
-        
+
+                        REM Ensure task_version folder exists in external repo
+                        if not exist external_repo\\task_version mkdir external_repo\\task_version
+
                         REM Get the latest version file from main repo
                         for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
                         :break
-        
-                        REM Copy latest version file into external repo
-                        copy task_version\\%LATEST_FILE% external_repo\\build_task_version\\%LATEST_FILE%
-        
+
+                        REM Copy latest version file into external repo's task_version
+                        copy task_version\\%LATEST_FILE% external_repo\\task_version\\%LATEST_FILE%
+
                         REM Commit and push changes to external repo
                         cd external_repo
-                        git add build_task_version\\%LATEST_FILE%
+                        git add task_version\\%LATEST_FILE%
                         git diff --cached --quiet || (
                             git commit -m "chore: add latest task version %LATEST_FILE%"
                             git push origin main
@@ -98,8 +98,7 @@ pipeline {
                     '''
                 }
             }
-}
-
+        }
 
         stage('Bump Version') {
             steps {
