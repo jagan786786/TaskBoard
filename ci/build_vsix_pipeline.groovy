@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
         GITHUB_TOKEN = credentials('github-token')  // internal repo
         PAT = credentials('pat-token')              // external repo
         BRANCH = 'main'
@@ -45,7 +46,6 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                 bat '''
-                    set "PATH=C:\\Windows\\System32;C:\\Windows;E:\\Git\\usr\\bin;E:\\Git\\cmd;%PATH%"
                     git config user.name "jenkins-bot"
                     git config user.email "jenkins-bot@example.com"
 
@@ -65,7 +65,6 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
                 bat '''
-                    set "PATH=C:\\Windows\\System32;C:\\Windows;E:\\Git\\usr\\bin;E:\\Git\\cmd;%PATH%"
                     git config --global user.name "jenkins-bot"
                     git config --global user.email "jenkins-bot@example.com"
 
