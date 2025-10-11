@@ -29,8 +29,6 @@ exports.createTask = async (req, res, next) => {
       dueDate: dueDate || null,
     });
 
-    console.log(task);
-
     // re-fetch with populate so normalizeTask works
     const populated = await Task.findById(task._id).populate(
       "assigneeId",
