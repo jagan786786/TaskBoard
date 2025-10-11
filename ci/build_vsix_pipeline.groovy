@@ -43,10 +43,13 @@ pipeline {
 
         stage('Commit Task Version to Test Repo') {
             steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                 bat '''
                     set "PATH=C:\\Windows\\System32;C:\\Windows;E:\\Git\\usr\\bin;E:\\Git\\cmd;%PATH%"
                     git config user.name "jenkins-bot"
                     git config user.email "jenkins-bot@example.com"
+
+                    git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
 
                     git add task_version\\*
                     git diff --cached --quiet || (
@@ -54,6 +57,7 @@ pipeline {
                         git push origin HEAD:%BRANCH%
                     )
                 '''
+                }
             }
         }
 
