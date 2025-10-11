@@ -16,10 +16,12 @@ exports.addComment = async (req, res, next) => {
 
     let comment = await Comment.create({ taskId, authorId, body });
 
-    
-
     //Log to the comment to know better
     comment = await comment.populate("authorId", "email");
+
+    //gsngdkjgnskfndskfnskgndkdnasfgsfgfkjsngks
+    console.log(comment);
+    //fsdjfskjsdgsdkjgnsfkjgnsf
     
     // flatten author
     res.status(201).json({
