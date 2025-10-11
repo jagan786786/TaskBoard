@@ -34,9 +34,7 @@ exports.createTask = async (req, res, next) => {
       "assigneeId",
       "email"
     );
-    //hggfhjiuytgdfsfftyuiouytdsfghjk
-    console.log(populated);
-    //jkjghgcfhjkiuygtfdghjk
+
     res.status(201).json(normalizeTask(populated));
   } catch (err) {
     next(err);
