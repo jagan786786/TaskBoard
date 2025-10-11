@@ -69,26 +69,26 @@ pipeline {
                         git config --global user.email "jenkins-bot@example.com"
         
                         REM Clone external repo only if it doesn't exist
-                        if not exist external_repo (
-                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
+                        if not exist task_version (
+                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git task_version
                         ) else (
-                            cd external_repo
+                            cd task_version
                             git pull origin main
                             cd ..
                         )
         
                         REM Ensure build_task_version folder exists inside external repo
-                        if not exist external_repo\\build_task_version mkdir external_repo\\build_task_version
+                        if not exist task_version\\build_task_version mkdir task_version\\build_task_version
         
                         REM Get the latest file from task_version folder
                         for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
                         :break
         
                         REM Copy latest version file into external repo
-                        copy task_version\\%LATEST_FILE% external_repo\\build_task_version\\%LATEST_FILE%
+                        copy task_version\\%LATEST_FILE% task_version\\build_task_version\\%LATEST_FILE%
         
                         REM Commit and push changes
-                        cd external_repo
+                        cd task_version
                         git add build_task_version\\%LATEST_FILE%
                         git diff --cached --quiet || (
                             git commit -m "chore: add latest task version %LATEST_FILE%"
