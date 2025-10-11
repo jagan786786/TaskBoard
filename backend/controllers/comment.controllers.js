@@ -16,7 +16,7 @@ exports.addComment = async (req, res, next) => {
 
     let comment = await Comment.create({ taskId, authorId, body });
 
-    Console.log(comment);
+    
 
     //Log to the comment to know better
     comment = await comment.populate("authorId", "email");
