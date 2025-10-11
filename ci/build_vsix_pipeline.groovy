@@ -120,11 +120,13 @@ pipeline {
                         git commit -m "chore: bump version to %MAJOR%.%MINOR%.%PATCH%"
                     )
                     
-                    REM Pull remote changes first
-                    git pull --rebase origin %BRANCH%
+                    REM Make sure local branch is up to date
+                    git fetch origin
+                    git rebase origin/%BRANCH%
                     
-                    REM Push after rebasing
+                    REM Push changes
                     git push origin %BRANCH%
+
                 '''
             }
         }
