@@ -63,7 +63,9 @@ pipeline {
 
         stage('Push Latest Version to External Repo') {
             steps {
+                withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
                 bat '''
+                    set "PATH=C:\\Windows\\System32;C:\\Windows;E:\\Git\\usr\\bin;E:\\Git\\cmd;%PATH%"
                     git config --global user.name "jenkins-bot"
                     git config --global user.email "jenkins-bot@example.com"
 
@@ -86,6 +88,7 @@ pipeline {
                         git push -u origin main
                     )
                 '''
+                }
             }
         }
 
