@@ -11,6 +11,7 @@ function generateToken(user) {
 }
 
 exports.register = async (req, res, next) => {
+  //gsfsgsfgshfuaifhsdkjhdfkfshfksdfhgfdshksdhfkdsfkdsffkdsfgd
   try {
     const { email, password } = req.body;
     if (!email || !password)
