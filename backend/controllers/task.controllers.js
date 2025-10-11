@@ -29,8 +29,6 @@ exports.createTask = async (req, res, next) => {
       dueDate: dueDate || null,
     });
 
-    //ftyfugytkfugytfgkjhgytggytfytgfuj
-    console.log(task);
 
     const populated = await Task.findById(task._id).populate(
       "assigneeId",
