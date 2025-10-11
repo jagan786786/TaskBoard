@@ -30,19 +30,45 @@ pipeline {
             }
         }
 
-        stage('Build / Generate Task Version') {
+        stage('Generate Versioned File with Timestamp') {
             steps {
                 dir('task_version') {
                     bat '''
-                        set VERSION_FILE=task_version_%date:~-4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%.txt
-                        echo This is a test version file for Jenkins build > %VERSION_FILE%
-                        dir
+                        REM Ensure version.txt exists to track numeric version
+                        if not exist ..\\version.txt echo 0.0.0 > ..\\version.txt
+
+                        REM Read current version
+                        for /f "tokens=1-3 delims=." %%a in (..\\version.txt) do (
+                            set MAJOR=%%a
+                            set MINOR=%%b
+                            set PATCH=%%c
+                        )
+
+                        REM Increment patch version
+                        set /a PATCH+=1
+
+                        REM Save updated version
+                        echo %MAJOR%.%MINOR%.%PATCH% > ..\\version.txt
+
+                        REM Generate timestamp
+                        set HH=%time:~0,2%
+                        set HH=%HH: =0%
+                        set MM=%time:~3,2%
+                        set SS=%time:~6,2%
+                        set YYYY=%date:~-4%
+                        set MM_DATE=%date:~4,2%
+                        set DD=%date:~7,2%
+
+                        REM Create unique versioned filename
+                        set VERSIONED_FILE=task_version_%MAJOR%.%MINOR%.%PATCH%_%YYYY%%MM_DATE%%DD%_%HH%%MM%%SS%.txt
+                        echo This is a test version file for Jenkins build > %VERSIONED_FILE%
+                        echo Created file: %VERSIONED_FILE%
                     '''
                 }
             }
         }
 
-        stage('Commit Task Version to Main Repo') {
+        stage('Commit to Main Repo') {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     bat '''
@@ -51,17 +77,23 @@ pipeline {
 
                         git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
 
-                        git add task_version\\*
+                        REM Add the new versioned file and version.txt
+                        for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
+                        :break
+
+                        git add task_version\\%LATEST_FILE%
+                        git add version.txt
                         git diff --cached --quiet || (
-                            git commit -m "chore: add task version files"
-                            git push origin HEAD:%BRANCH%
+                            git commit -m "chore: add new task version %LATEST_FILE%"
+                            git pull --rebase origin %BRANCH%
+                            git push origin %BRANCH%
                         )
                     '''
                 }
             }
         }
 
-        stage('Push Latest Version to External Repo') {
+        stage('Push to External Repo') {
             steps {
                 withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
                     bat '''
@@ -80,54 +112,21 @@ pipeline {
                         REM Ensure task_version folder exists in external repo
                         if not exist external_repo\\task_version mkdir external_repo\\task_version
 
-                        REM Get the latest version file from main repo
+                        REM Copy latest versioned file to external repo
                         for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
                         :break
-
-                        REM Copy latest version file into external repo's task_version
                         copy task_version\\%LATEST_FILE% external_repo\\task_version\\%LATEST_FILE%
 
-                        REM Commit and push changes to external repo
+                        REM Commit and push to external repo
                         cd external_repo
                         git add task_version\\%LATEST_FILE%
                         git diff --cached --quiet || (
-                            git commit -m "chore: add latest task version %LATEST_FILE%"
+                            git commit -m "chore: add new task version %LATEST_FILE%"
                             git push origin main
                         )
                         cd ..
                     '''
                 }
-            }
-        }
-
-        stage('Bump Version') {
-            steps {
-                bat '''
-                    set VERSION_FILE=version.txt
-                    if not exist %VERSION_FILE% echo 0.0.0 > %VERSION_FILE%
-                    
-                    for /f "tokens=1-3 delims=." %%a in (%VERSION_FILE%) do (
-                        set MAJOR=%%a
-                        set MINOR=%%b
-                        set PATCH=%%c
-                    )
-                    
-                    set /a PATCH+=1
-                    echo %MAJOR%.%MINOR%.%PATCH% > %VERSION_FILE%
-                    
-                    git add %VERSION_FILE%
-                    git diff --cached --quiet || (
-                        git commit -m "chore: bump version to %MAJOR%.%MINOR%.%PATCH%"
-                    )
-                    
-                    REM Make sure local branch is up to date
-                    git fetch origin
-                    git rebase origin/%BRANCH%
-                    
-                    REM Push changes
-                    git push origin %BRANCH%
-
-                '''
             }
         }
     }
