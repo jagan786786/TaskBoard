@@ -4,7 +4,7 @@ pipeline {
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
         GITHUB_TOKEN = credentials('github-token')  // internal repo
-        PAT = credentials('pat_token')              // external repo
+        PAT = credentials('pat-token')              // external repo
         BRANCH = 'main'
     }
 
@@ -63,7 +63,7 @@ pipeline {
 
         stage('Push Latest Version to External Repo') {
             steps {
-                withCredentials([string(credentialsId: 'pat_token', variable: 'PAT')]) {
+                withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
                 bat '''
                     git config --global user.name "jenkins-bot"
                     git config --global user.email "jenkins-bot@example.com"
