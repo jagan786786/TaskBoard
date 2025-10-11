@@ -62,7 +62,7 @@ pipeline {
 
         stage('Push Latest Version to External Repo') {
             steps {
-                sh '''
+                bat '''
                     git config --global user.name "jenkins-bot"
                     git config --global user.email "jenkins-bot@example.com"
 
