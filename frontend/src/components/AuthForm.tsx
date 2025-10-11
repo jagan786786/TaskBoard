@@ -11,6 +11,8 @@ export const AuthForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login, signup } = useAuth();
 
+
+  //gsfhgfsdhjfsdkfnsdfdsjfjhfdskjfnsnkfndsk
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
