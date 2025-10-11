@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        GITHUB_TOKEN = credentials('github-token')  // test repo
-        PAT = credentials('pat-token')              // external repo
-        BRANCH = 'main'                             // branch in TaskBoard repo
+        GITHUB_TOKEN = credentials('github-token')
+        PAT = credentials('pat-token')
+        BRANCH = 'main'
     }
 
     triggers {
-        pollSCM('* * * * *')  // optional; you can use GitHub webhook instead
+        pollSCM('* * * * *')
     }
 
     stages {
@@ -21,23 +21,20 @@ pipeline {
 
         stage('Prepare Version Folder') {
             steps {
-                dir('task_version') {
-                    sh '''
-                        mkdir -p task_version
-                        echo "Preparing version folder"
-                    '''
-                }
+                bat '''
+                    mkdir task_version
+                    echo Preparing version folder
+                '''
             }
         }
 
         stage('Build / Generate Task Version') {
             steps {
                 dir('task_version') {
-                    sh '''
-                        # Example: create a dummy version file
-                        VERSION_FILE="task_version_$(date +%Y%m%d_%H%M%S).txt"
-                        echo "This is a test version file for Jenkins build" > $VERSION_FILE
-                        ls -l
+                    bat '''
+                        set VERSION_FILE=task_version_%date:~-4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%.txt
+                        echo This is a test version file for Jenkins build > %VERSION_FILE%
+                        dir
                     '''
                 }
             }
@@ -45,17 +42,14 @@ pipeline {
 
         stage('Commit Task Version to Test Repo') {
             steps {
-                sh '''
+                bat '''
                     git config user.name "jenkins-bot"
                     git config user.email "jenkins-bot@example.com"
-
-                    git add task_version/*
-                    if ! git diff --cached --quiet; then
+                    git add task_version\\*
+                    git diff --cached --quiet || (
                         git commit -m "chore: add task version files"
-                        git push origin HEAD:${BRANCH}
-                    else
-                        echo "No new version files to commit"
-                    fi
+                        git push origin HEAD:%BRANCH%
+                    )
                 '''
             }
         }
@@ -66,45 +60,45 @@ pipeline {
                     git config --global user.name "jenkins-bot"
                     git config --global user.email "jenkins-bot@example.com"
 
-                    echo "Cloning external repo..."
-                    git clone https://x-access-token:${PAT}@github.com/jagan786786/task_board_version.git external_repo
-                    mkdir -p external_repo/build_task_version
+                    echo Cloning external repo...
+                    git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
+                    mkdir external_repo\\build_task_version
 
-                    # Copy latest version file from task_version folder
-                    LATEST_FILE=$(ls -t task_version/* | head -n1)
-                    BASENAME=$(basename "$LATEST_FILE")
-                    cp "$LATEST_FILE" "external_repo/build_task_version/$BASENAME"
+                    for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
+                    :break
+                    copy task_version\\%LATEST_FILE% external_repo\\build_task_version\\%LATEST_FILE%
 
                     cd external_repo
-                    git add "build_task_version/$BASENAME"
-                    if ! git diff --cached --quiet; then
-                        git commit -m "chore: add latest task version $BASENAME"
-                        git branch -M main || true
+                    git add build_task_version\\%LATEST_FILE%
+                    git diff --cached --quiet || (
+                        git commit -m "chore: add latest task version %LATEST_FILE%"
+                        git branch -M main
                         git push -u origin main
-                    else
-                        echo "No changes to commit in external repo"
-                    fi
+                    )
                 '''
             }
         }
 
         stage('Bump Version') {
             steps {
-                dir('.') {
-                    sh '''
-                        # Increment a simple version.txt file for demo purposes
-                        VERSION_FILE="version.txt"
-                        if [ ! -f "$VERSION_FILE" ]; then
-                            echo "0.0.0" > $VERSION_FILE
-                        fi
-                        IFS='.' read -r major minor patch <<< "$(cat $VERSION_FILE)"
-                        patch=$((patch + 1))
-                        echo "$major.$minor.$patch" > $VERSION_FILE
-                        git add $VERSION_FILE
-                        git commit -m "chore: bump version to $(cat $VERSION_FILE)" || echo "No changes"
-                        git push origin HEAD:${BRANCH}
-                    '''
-                }
+                bat '''
+                    set VERSION_FILE=version.txt
+                    if not exist %VERSION_FILE% echo 0.0.0 > %VERSION_FILE%
+
+                    for /f "tokens=1-3 delims=." %%a in (%VERSION_FILE%) do (
+                        set MAJOR=%%a
+                        set MINOR=%%b
+                        set PATCH=%%c
+                    )
+                    set /a PATCH+=1
+                    echo %MAJOR%.%MINOR%.%PATCH% > %VERSION_FILE%
+
+                    git add %VERSION_FILE%
+                    git diff --cached --quiet || (
+                        git commit -m "chore: bump version to %MAJOR%.%MINOR%.%PATCH%"
+                        git push origin HEAD:%BRANCH%
+                    )
+                '''
             }
         }
     }
