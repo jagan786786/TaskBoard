@@ -63,7 +63,7 @@ pipeline {
 
         stage('Push Latest Version to External Repo') {
             steps {
-                withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
+                withCredentials([string(credentialsId: 'pat_token', variable: 'PAT')]) {
                     bat '''
                         REM --- Ensure Git is available ---
                         set "PATH=C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin;%PATH%"
