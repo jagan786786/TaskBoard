@@ -21,6 +21,7 @@ exports.register = async (req, res, next) => {
       return res.status(409).json({ message: "Email already used" });
 
     const user = await User.createWithPassword(email, password);
+    console.log(user);
     const token = generateToken(user);
     res.status(201).json({ token, user: { id: user._id, email: user.email } });
   } catch (err) {
