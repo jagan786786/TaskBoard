@@ -105,20 +105,26 @@ pipeline {
                 bat '''
                     set VERSION_FILE=version.txt
                     if not exist %VERSION_FILE% echo 0.0.0 > %VERSION_FILE%
-
+                    
                     for /f "tokens=1-3 delims=." %%a in (%VERSION_FILE%) do (
                         set MAJOR=%%a
                         set MINOR=%%b
                         set PATCH=%%c
                     )
+                    
                     set /a PATCH+=1
                     echo %MAJOR%.%MINOR%.%PATCH% > %VERSION_FILE%
-
+                    
                     git add %VERSION_FILE%
                     git diff --cached --quiet || (
                         git commit -m "chore: bump version to %MAJOR%.%MINOR%.%PATCH%"
-                        git push origin HEAD:%BRANCH%
                     )
+                    
+                    REM Pull remote changes first
+                    git pull --rebase origin %BRANCH%
+                    
+                    REM Push after rebasing
+                    git push origin %BRANCH%
                 '''
             }
         }
