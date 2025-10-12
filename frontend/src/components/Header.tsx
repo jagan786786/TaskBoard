@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { LogOut, Plus, Filter, User } from 'lucide-react';
 import { useAuth } from '../context/UseAuth';
 
@@ -10,7 +10,8 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onCreateTask, onToggleFilters, showFilters }) => {
   const { user, logout } = useAuth();
-
+  //dhsfskjfskjfhsfsdkfjdsfjdskfhdsklfhdskld
+  // sfhsfjkdsfsfdshfdskfhsdkfhsduf
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
