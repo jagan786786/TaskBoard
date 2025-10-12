@@ -4,7 +4,7 @@ pipeline {
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
         GITHUB_TOKEN = credentials('github-token')   // internal repo (TaskBoard)
-        PAT = credentials('pat_token')               // external repo (task_board_version)
+        // PAT = credentials('pat_token')               // external repo (task_board_version)
         BRANCH = 'main'
         EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
     }
@@ -86,13 +86,13 @@ pipeline {
 
         stage('Push VSIX to External Repo') {
             steps {
-                withCredentials([string(credentialsId: 'pat_token', variable: 'PAT')]) {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     bat """
                         git config --global  user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
 
                         if not exist vsix_build_version (
-                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git vsix_build_version
+                            git clone https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/task_board_version.git vsix_build_version
                         ) else (
                             cd vsix_build_version
                             git pull origin main
