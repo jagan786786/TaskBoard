@@ -71,7 +71,7 @@ pipeline {
                         git config user.name "jenkins-bot"
                         git config user.email "jenkins-bot@example.com"
 
-                        git remote set-url origin https://%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
+                        git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
@@ -92,7 +92,7 @@ pipeline {
                         git config  user.email "jenkins-bot@example.com"
 
                         if not exist vsix_build_version (
-                            git clone https://%PAT%@github.com/jagan786786/task_board_version.git vsix_build_version
+                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git vsix_build_version
                         ) else (
                             cd vsix_build_version
                             git pull origin main
