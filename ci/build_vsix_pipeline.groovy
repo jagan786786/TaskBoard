@@ -68,6 +68,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'PAT_PSW')]) {
                     bat """
+                        echo %PAT_PSW%
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
                         git remote set-url origin https://%PAT_PSW%@github.com/jagan786786/TaskBoard.git
