@@ -4,11 +4,9 @@ pipeline {
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
         GITHUB_TOKEN = credentials('github-token')   // internal repo (TaskBoard)
-        // PAT = credentials('pat_token')               // external repo (task_board_version)
+        PAT = credentials('pat_token')               // external repo (task_board_version)
         BRANCH = 'main'
         EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
-        GIT_USER = 'jagan786786'
-        GIT_PASS = 'Jagannath@786'
     }
 
     triggers {
@@ -69,33 +67,33 @@ pipeline {
         stage('Commit VSIX to Main Repo') {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                    bat """
+                    bat '''
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
-
-                         git remote set-url origin https://github.com/jagan786786/TaskBoard.git
-                         echo "https://${GITHUB_TOKEN}:@github.com" | git credential approve
-
+        
+                        git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
+        
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
                             git commit -m "chore: add VSIX package to vsix_package_versions"
                             git pull --rebase origin %BRANCH%
                             git push origin %BRANCH%
                         )
-                    """
+                    '''
                 }
             }
         }
 
+
         stage('Push VSIX to External Repo') {
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'pat_token', variable: 'PAT')]) {
                     bat """
                         git config --global  user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
 
                         if not exist vsix_build_version (
-                            git clone https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/task_board_version.git vsix_build_version
+                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git vsix_build_version
                         ) else (
                             cd vsix_build_version
                             git pull origin main
