@@ -71,7 +71,8 @@ pipeline {
                         echo "Token is" %PAT_PSW%
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
-                        git remote set-url origin https://%PAT_PSW%@github.com/jagan786786/TaskBoard.git
+                        git remote set-url origin git@github.com:jagan786786/TaskBoard.git
+
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
                             git commit -m "chore: add VSIX package to vsix_package_versions"
