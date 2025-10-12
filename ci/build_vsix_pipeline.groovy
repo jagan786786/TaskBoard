@@ -48,7 +48,7 @@ pipeline {
         stage('Package VSIX') {
             steps {
                 bat '''
-                    cd genie-vscode
+                    cd frontend
                     for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
                     echo Current Version is %VERSION%
 
@@ -72,7 +72,7 @@ pipeline {
 
                         git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
 
-                        git add genie-vscode\\vsix_package_versions\\*.vsix
+                        git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
                             git commit -m "chore: add VSIX package to vsix_package_versions"
                             git pull --rebase origin %BRANCH%
@@ -90,21 +90,21 @@ pipeline {
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
 
-                        if not exist external_repo (
-                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
+                        if not exist vsix_build_version (
+                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git vsix_build_version
                         ) else (
-                            cd external_repo
+                            cd vsix_build_version
                             git pull origin main
                             cd ..
                         )
 
-                        if not exist external_repo\\vsix_build_files mkdir external_repo\\vsix_build_files
+                        if not exist vsix_build_version\\vsix_build_files mkdir vsix_build_version\\vsix_build_files
 
                         for /f %%F in ('dir /b /o-d genie-vscode\\vsix_package_versions\\*.vsix') do set LATEST_FILE=%%F & goto :break
                         :break
-                        copy genie-vscode\\vsix_package_versions\\%LATEST_FILE% external_repo\\vsix_build_files\\%LATEST_FILE%
+                        copy frontend\\vsix_package_versions\\%LATEST_FILE% vsix_build_version\\vsix_build_files\\%LATEST_FILE%
 
-                        cd external_repo
+                        cd vsix_build_version
                         git add vsix_build_files\\%LATEST_FILE%
                         git diff --cached --quiet || (
                             git commit -m "chore: add VSIX %LATEST_FILE%"
@@ -119,7 +119,7 @@ pipeline {
         stage('Bump Version') {
             steps {
                 bat '''
-                    cd genie-vscode
+                    cd frontend
                     for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
 
                     for /f "tokens=1,2,3 delims=." %%a in ("%VERSION%") do (
