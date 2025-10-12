@@ -3,13 +3,14 @@ pipeline {
 
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
-        GITHUB_TOKEN = credentials('github-token')  // internal repo
-        PAT = credentials('pat-token')              // external repo
+        GITHUB_TOKEN = credentials('github-token')   // internal repo (TaskBoard)
+        PAT = credentials('pat-token')               // external repo (task_board_version)
         BRANCH = 'main'
+        EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
     }
 
     triggers {
-        pollSCM('* * * * *')  // optional; can use GitHub webhook instead
+        pollSCM('* * * * *') // optional — can replace with webhook
     }
 
     stages {
@@ -21,54 +22,45 @@ pipeline {
             }
         }
 
-        stage('Prepare Version Folder') {
+        stage('Setup Node & Install Dependencies') {
             steps {
                 bat '''
-                    if not exist task_version mkdir task_version
-                    echo Preparing version folder
+                    echo Setting up Node environment...
+                    node -v || exit /b 1
+                    cd genie-vscode
+                    call npm ci
                 '''
             }
         }
 
-        stage('Generate Versioned File with Timestamp') {
+        stage('Install VSCE CLI') {
             steps {
-                dir('task_version') {
-                    bat '''
-                        REM Ensure version.txt exists to track numeric version
-                        if not exist ..\\version.txt echo 0.0.0 > ..\\version.txt
-
-                        REM Read current version
-                        for /f "tokens=1-3 delims=." %%a in (..\\version.txt) do (
-                            set MAJOR=%%a
-                            set MINOR=%%b
-                            set PATCH=%%c
-                        )
-
-                        REM Increment patch version
-                        set /a PATCH+=1
-
-                        REM Save updated version
-                        echo %MAJOR%.%MINOR%.%PATCH% > ..\\version.txt
-
-                        REM Generate timestamp
-                        set HH=%time:~0,2%
-                        set HH=%HH: =0%
-                        set MM=%time:~3,2%
-                        set SS=%time:~6,2%
-                        set YYYY=%date:~-4%
-                        set MM_DATE=%date:~4,2%
-                        set DD=%date:~7,2%
-
-                        REM Create unique versioned filename
-                        set VERSIONED_FILE=task_version_%MAJOR%.%MINOR%.%PATCH%_%YYYY%%MM_DATE%%DD%_%HH%%MM%%SS%.txt
-                        echo This is a test version file for Jenkins build > %VERSIONED_FILE%
-                        echo Created file: %VERSIONED_FILE%
-                    '''
-                }
+                bat '''
+                    echo Installing VSCE CLI...
+                    call npm install -g @vscode/vsce
+                '''
             }
         }
 
-        stage('Commit to Main Repo') {
+        stage('Package VSIX') {
+            steps {
+                bat '''
+                    cd genie-vscode
+                    for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
+                    echo Current Version is %VERSION%
+
+                    echo Packaging VSIX...
+                    call vsce package --no-dependencies
+                    ren *.vsix genie-vscode-hsbc-%VERSION%.vsix
+
+                    if not exist vsix_package_versions mkdir vsix_package_versions
+                    move genie-vscode-hsbc-%VERSION%.vsix vsix_package_versions\\
+                    echo "VSIX created as genie-vscode-hsbc-%VERSION%.vsix"
+                '''
+            }
+        }
+
+        stage('Commit VSIX to Main Repo') {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     bat '''
@@ -77,14 +69,9 @@ pipeline {
 
                         git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
 
-                        REM Add the new versioned file and version.txt
-                        for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
-                        :break
-
-                        git add task_version\\%LATEST_FILE%
-                        git add version.txt
+                        git add genie-vscode\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
-                            git commit -m "chore: add new task version %LATEST_FILE%"
+                            git commit -m "chore: add VSIX package to vsix_package_versions"
                             git pull --rebase origin %BRANCH%
                             git push origin %BRANCH%
                         )
@@ -93,14 +80,13 @@ pipeline {
             }
         }
 
-        stage('Push to External Repo') {
+        stage('Push VSIX to External Repo') {
             steps {
                 withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
                     bat '''
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
 
-                        REM Clone external repo if it doesn't exist
                         if not exist external_repo (
                             git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git external_repo
                         ) else (
@@ -109,24 +95,43 @@ pipeline {
                             cd ..
                         )
 
-                        REM Ensure task_version folder exists in external repo
-                        if not exist external_repo\\task_version mkdir external_repo\\task_version
+                        if not exist external_repo\\vsix_build_files mkdir external_repo\\vsix_build_files
 
-                        REM Copy latest versioned file to external repo
-                        for /f %%F in ('dir /b /o-d task_version') do set LATEST_FILE=%%F & goto :break
+                        for /f %%F in ('dir /b /o-d genie-vscode\\vsix_package_versions\\*.vsix') do set LATEST_FILE=%%F & goto :break
                         :break
-                        copy task_version\\%LATEST_FILE% external_repo\\task_version\\%LATEST_FILE%
+                        copy genie-vscode\\vsix_package_versions\\%LATEST_FILE% external_repo\\vsix_build_files\\%LATEST_FILE%
 
-                        REM Commit and push to external repo
                         cd external_repo
-                        git add task_version\\%LATEST_FILE%
+                        git add vsix_build_files\\%LATEST_FILE%
                         git diff --cached --quiet || (
-                            git commit -m "chore: add new task version %LATEST_FILE%"
+                            git commit -m "chore: add VSIX %LATEST_FILE%"
                             git push origin main
                         )
                         cd ..
                     '''
                 }
+            }
+        }
+
+        stage('Bump Version') {
+            steps {
+                bat '''
+                    cd genie-vscode
+                    for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
+
+                    for /f "tokens=1,2,3 delims=." %%a in ("%VERSION%") do (
+                        set MAJOR=%%a
+                        set MINOR=%%b
+                        set PATCH=%%c
+                    )
+                    set /a PATCH+=1
+                    set NEW_VERSION=%MAJOR%.%MINOR%.%PATCH%
+
+                    call npm version %NEW_VERSION% --no-git-tag-version
+                    git add package.json package-lock.json
+                    git commit -m "chore: bump version to %NEW_VERSION%" || echo "No version bump"
+                    git push origin %BRANCH%
+                '''
             }
         }
     }
