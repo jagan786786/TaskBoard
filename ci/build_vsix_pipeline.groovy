@@ -66,12 +66,12 @@ pipeline {
 
          stage('Commit VSIX to Main Repo') {
             steps {
-                withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     bat """
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
 
-                        git remote set-url origin https://x-access-token:%PAT%@github.com/jagan786786/TaskBoard.git
+                        git remote set-url origin https://$GITHUB_TOKEN@github.com/jagan786786/TaskBoard.git
 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
