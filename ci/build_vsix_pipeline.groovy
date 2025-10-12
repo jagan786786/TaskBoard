@@ -68,8 +68,8 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     bat """
-                        git config user.name "jenkins-bot"
-                        git config user.email "jenkins-bot@example.com"
+                        git config --global user.name "jenkins-bot"
+                        git config --global user.email "jenkins-bot@example.com"
 
                         git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
 
@@ -88,8 +88,8 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'pat_token', variable: 'PAT')]) {
                     bat """
-                        git config  user.name "jenkins-bot"
-                        git config  user.email "jenkins-bot@example.com"
+                        git config --global  user.name "jenkins-bot"
+                        git config --global user.email "jenkins-bot@example.com"
 
                         if not exist vsix_build_version (
                             git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git vsix_build_version
