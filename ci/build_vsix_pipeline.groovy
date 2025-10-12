@@ -66,13 +66,12 @@ pipeline {
 
          stage('Commit VSIX to Main Repo') {
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'PAT_PSW')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'JENKINS_SSH_KEY', keyFileVariable: 'SSH_KEY')]) {
                     bat """
-                        echo "Token is" %PAT_PSW%
+                        SET GIT_SSH_COMMAND=ssh -i %SSH_KEY% -o StrictHostKeyChecking=no
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
-                        git remote set-url origin git@github.com:jagan786786/TaskBoard.git
-
+                
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
                             git commit -m "chore: add VSIX package to vsix_package_versions"
@@ -81,7 +80,6 @@ pipeline {
                         )
                     """
                 }
-
             }
         }
 
