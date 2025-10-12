@@ -48,6 +48,8 @@ export const TaskBoard: React.FC = () => {
             },
           }
         ),
+        //gdshgkdjgdjgldjgjldgjorttiohyjtrlgf
+        console.log(taskRes);
         fetch(`${API_BASE_URL}/auth/users`, {
           credentials: "include",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
