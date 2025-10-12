@@ -23,6 +23,7 @@ pipeline {
         }
 
         stage('Setup Node & Install Dependencies') {
+            tools { nodejs 'node20' }
             steps {
                 bat '''
                     echo Setting up Node environment...
