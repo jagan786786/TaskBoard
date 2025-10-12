@@ -73,9 +73,8 @@ pipeline {
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
 
-                         git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/jagan786786/TaskBoard.git
-
-
+                         git remote set-url origin https://github.com/jagan786786/TaskBoard.git
+                         echo "https://${GITHUB_TOKEN}:@github.com" | git credential approve
 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
