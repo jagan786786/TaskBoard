@@ -28,7 +28,7 @@ pipeline {
                 bat '''
                     echo Setting up Node environment...
                     node -v || exit /b 1
-                    cd genie-vscode
+                    cd frontend
                     call npm ci
                 '''
             }
