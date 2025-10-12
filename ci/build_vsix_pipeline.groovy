@@ -35,10 +35,12 @@ pipeline {
         }
 
         stage('Install VSCE CLI') {
+            tools { nodejs 'node20' }
             steps {
                 bat '''
                     echo Installing VSCE CLI...
                     call npm install -g @vscode/vsce
+                    call vsce --version
                 '''
             }
         }
