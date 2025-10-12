@@ -46,6 +46,7 @@ pipeline {
         }
 
         stage('Package VSIX') {
+            tools { nodejs 'node20' }
             steps {
                 bat '''
                     cd frontend
