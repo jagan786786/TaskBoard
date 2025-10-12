@@ -7,6 +7,7 @@ pipeline {
         // PAT = credentials('pat_token')               // external repo (task_board_version)
         BRANCH = 'main'
         EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
+        GIT_PASS = 'Jagannath@786'
     }
 
     triggers {
@@ -71,7 +72,8 @@ pipeline {
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
 
-                        git remote set-url origin https://x-access-token:%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
+                         git remote set-url origin https://${GITHUB_TOKEN}:${GIT_PASS}@github.com/jagan786786/TaskBoard.git
+
 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
