@@ -67,7 +67,7 @@ pipeline {
         stage('Commit VSIX to Main Repo') {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                    bat '''
+                    bat """
                         git config user.name "jenkins-bot"
                         git config user.email "jenkins-bot@example.com"
 
@@ -79,7 +79,7 @@ pipeline {
                             git pull --rebase origin %BRANCH%
                             git push origin %BRANCH%
                         )
-                    '''
+                    """
                 }
             }
         }
@@ -87,7 +87,7 @@ pipeline {
         stage('Push VSIX to External Repo') {
             steps {
                 withCredentials([string(credentialsId: 'pat-token', variable: 'PAT')]) {
-                    bat '''
+                    bat """
                         git config  user.name "jenkins-bot"
                         git config  user.email "jenkins-bot@example.com"
 
@@ -112,7 +112,7 @@ pipeline {
                             git push origin main
                         )
                         cd ..
-                    '''
+                    """
                 }
             }
         }
