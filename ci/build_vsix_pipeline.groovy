@@ -101,7 +101,7 @@ pipeline {
 
                         if not exist vsix_build_version\\vsix_build_files mkdir vsix_build_version\\vsix_build_files
 
-                        for /f %%F in ('dir /b /o-d genie-vscode\\vsix_package_versions\\*.vsix') do set LATEST_FILE=%%F & goto :break
+                        for /f %%F in ('dir /b /o-d frontend\\vsix_package_versions\\*.vsix') do set LATEST_FILE=%%F & goto :break
                         :break
                         copy frontend\\vsix_package_versions\\%LATEST_FILE% vsix_build_version\\vsix_build_files\\%LATEST_FILE%
 
