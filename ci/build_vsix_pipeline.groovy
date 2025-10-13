@@ -123,8 +123,15 @@ pipeline {
         }
 
         stage('Bump Version') {
+            tools { nodejs 'node20' }
             steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'JENKINS_SSH_KEY', keyFileVariable: 'SSH_KEY')]) {
                 bat '''
+
+                    SET GIT_SSH_COMMAND=ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no
+                    git config --global user.name "jenkins-bot"
+                    git config --global user.email "jenkins-bot@example.com"
+                    
                     cd frontend
                     for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
 
@@ -138,8 +145,10 @@ pipeline {
 
                     call npm version %NEW_VERSION% --no-git-tag-version
                     git add package.json package-lock.json
-                    git commit -m "chore: bump version to %NEW_VERSION%" || echo "No version bump"
-                    git push origin %BRANCH%
+                    git diff --cached --quiet || (
+                    git commit -m "chore: bump version to %NEW_VERSION%"
+                    git push origin main
+                )
                 '''
             }
         }
