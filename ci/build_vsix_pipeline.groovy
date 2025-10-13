@@ -7,8 +7,12 @@ pipeline {
         EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
     }
 
-    stages {
+    triggers {
+        pollSCM('* * * * *')
+    }
 
+
+    stages {
         stage('Checkout Source') {
             steps {
                 echo "Checking out source branch ${BRANCH}"
