@@ -145,9 +145,8 @@ pipeline {
 
                     call npm version %NEW_VERSION% --no-git-tag-version
                     git add package.json package-lock.json
-                    git diff --cached --quiet || (
-                    git commit -m "chore: bump version to %NEW_VERSION%"
-                    git push origin main
+                    git commit -m "chore: bump version to %NEW_VERSION%" || echo "No version bump" 
+                    git push origin %BRANCH%
                 )
                 '''
             }
