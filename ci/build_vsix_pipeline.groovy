@@ -71,15 +71,11 @@ pipeline {
                         SET GIT_SSH_COMMAND=ssh -i %SSH_KEY% -o StrictHostKeyChecking=no
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
-
-                        echo ==== Checking Git Config ====
-                        git config --global --get user.name
-                        git config --global --get user.email
-                        echo =============================
+                        git remote set-url origin git@github.com:jagan786786/TaskBoard.git
                 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
-                            git commit -m "chore: add VSIX package to vsix_package_versions"
+                            git commit -m "chore: add VSIX package"
                             git pull --rebase origin main
                             git push origin main
                         )
