@@ -149,6 +149,7 @@ pipeline {
                     git push origin %BRANCH%
                 
                 '''
+                }
             }
         }
     }
