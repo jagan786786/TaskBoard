@@ -15,6 +15,9 @@ exports.addComment = async (req, res, next) => {
     if (!task) return res.status(404).json({ message: "Task not found" });
 
     let comment = await Comment.create({ taskId, authorId, body });
+
+    //jshfdkhfksjdhfkdfsdkjhksd
+    console.log(comment);
     
     //Log to the comment to know better
     comment = await comment.populate("authorId", "email");
@@ -37,6 +40,9 @@ exports.listComments = async (req, res, next) => {
     const comments = await Comment.find({ taskId })
       .populate("authorId", "email")
       .sort({ createdAt: 1 });
+
+    //sfshfjskdfhkjsdhfskjfhks
+    console.log(comments);
 
     res.json(
       comments.map((c) => ({
