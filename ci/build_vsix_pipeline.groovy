@@ -7,6 +7,10 @@ pipeline {
         EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
     }
 
+    triggers {
+        pollSCM('* * * * *') // optional — can replace with webhook
+    }
+
     stages {
 
         stage('Checkout Source') {
@@ -71,7 +75,7 @@ pipeline {
                 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
-                            git commit -m "chore: add VSIX package [ci skip]"
+                            git commit -m "chore: add VSIX package"
                             git pull --rebase origin main
                             git push origin main
                         )
@@ -141,7 +145,7 @@ pipeline {
 
                     call npm version %NEW_VERSION% --no-git-tag-version
                     git add package.json package-lock.json
-                    git commit -m "chore: bump version to %NEW_VERSION% [ci skip]" || echo "No version bump" 
+                    git commit -m "chore: bump version to %NEW_VERSION%" || echo "No version bump" 
                     git push origin %BRANCH%
                 
                 '''
