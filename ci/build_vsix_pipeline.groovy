@@ -70,7 +70,7 @@ pipeline {
                     bat """
                         echo SSH key file path: %SSH_KEY%
                         dir "%SSH_KEY%"
-                        SET GIT_SSH_COMMAND=ssh -i %SSH_KEY% -o StrictHostKeyChecking=no
+                        SET GIT_SSH_COMMAND=ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
                         git remote set-url origin git@github.com:jagan786786/TaskBoard.git
