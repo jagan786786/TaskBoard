@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
-        GITHUB_TOKEN = credentials('github-token')   // internal repo (TaskBoard)
-        PAT = credentials('pat_token')               // external repo (task_board_version)
         BRANCH = 'main'
         EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
     }
