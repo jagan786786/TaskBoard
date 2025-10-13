@@ -68,6 +68,11 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'JENKINS_SSH_KEY', keyFileVariable: 'SSH_KEY')]) {
                     bat """
+                        bat """
+                            echo SSH key file path: %SSH_KEY%
+                            dir "%SSH_KEY%"
+                        """
+
                         SET GIT_SSH_COMMAND=ssh -i %SSH_KEY% -o StrictHostKeyChecking=no
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
