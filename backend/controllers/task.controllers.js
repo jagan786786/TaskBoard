@@ -35,6 +35,9 @@ exports.createTask = async (req, res, next) => {
       "email"
     );
 
+    //fhskjfhskjfhsdjkfshsdhfskhfsfhdsjf
+    console.log(populated);
+
     res.status(201).json(normalizeTask(populated));
   } catch (err) {
     next(err);
@@ -53,6 +56,9 @@ exports.getTask = async (req, res, next) => {
     const comments = await Comment.find({ taskId: id })
       .populate("authorId", "email")
       .sort({ createdAt: 1 });
+
+    //fjhdsjkshfisjhfdsufdskjfhsdkjfhsdfhdskfhsdkjfkh
+    console.log(comments);
 
     const obj = normalizeTask(task);
     res.json({ ...obj, comments });
@@ -73,6 +79,9 @@ exports.listTasks = async (req, res, next) => {
     const tasks = await Task.find(filter)
       .populate("assigneeId", "email")
       .sort({ createdAt: -1 });
+
+    //fhsjhreuhufkhgrekjadskbgdsg
+    console.log(tasks);
 
     res.json(tasks.map(normalizeTask));
   } catch (err) {
