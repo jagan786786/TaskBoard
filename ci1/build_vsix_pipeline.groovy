@@ -65,12 +65,12 @@ pipeline {
                         git config user.name "jenkins-bot"
                         git config user.email "jenkins-bot@example.com"
                         git remote set-url origin git@github.com:jagan786786/TaskBoard.git
-
+        
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
                             git commit -m "chore: add VSIX package"
                             git pull --rebase origin %BRANCH%
-                            git push origin %BRANCH%
+                            git push --force-with-lease origin %BRANCH%
                         )
                     """
                 }
