@@ -90,25 +90,27 @@ pipeline {
 
         stage('Push VSIX to External Repo') {
             steps {
-                withCredentials([string(credentialsId: 'pat_token', variable: 'PAT')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'JENKINS_EXTERNAL_SSH_KEY', keyFileVariable: 'SSH_KEY')]) {
                     bat """
-                        git config --global  user.name "jenkins-bot"
+                        SET GIT_SSH_COMMAND=ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no
+                
+                        git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
-
+                
                         if not exist vsix_build_version (
-                            git clone https://x-access-token:%PAT%@github.com/jagan786786/task_board_version.git vsix_build_version
+                            git clone git@github.com:jagan786786/task_board_version.git vsix_build_version
                         ) else (
                             cd vsix_build_version
                             git pull origin main
                             cd ..
                         )
-
+                
                         if not exist vsix_build_version\\vsix_build_files mkdir vsix_build_version\\vsix_build_files
-
+                
                         for /f %%F in ('dir /b /o-d frontend\\vsix_package_versions\\*.vsix') do set LATEST_FILE=%%F & goto :break
                         :break
                         copy frontend\\vsix_package_versions\\%LATEST_FILE% vsix_build_version\\vsix_build_files\\%LATEST_FILE%
-
+                
                         cd vsix_build_version
                         git add vsix_build_files\\%LATEST_FILE%
                         git diff --cached --quiet || (
@@ -118,6 +120,7 @@ pipeline {
                         cd ..
                     """
                 }
+
             }
         }
 
