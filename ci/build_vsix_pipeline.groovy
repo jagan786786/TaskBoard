@@ -7,10 +7,6 @@ pipeline {
         EXT_REPO = 'https://github.com/jagan786786/task_board_version.git'
     }
 
-    triggers {
-        pollSCM('* * * * *') // optional — can replace with webhook
-    }
-
     stages {
 
         stage('Checkout Source') {
