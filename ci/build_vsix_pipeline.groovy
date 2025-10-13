@@ -147,7 +147,7 @@ pipeline {
                     git add package.json package-lock.json
                     git commit -m "chore: bump version to %NEW_VERSION%" || echo "No version bump" 
                     git push origin %BRANCH%
-                )
+                
                 '''
             }
         }
