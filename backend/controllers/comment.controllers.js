@@ -19,9 +19,6 @@ exports.addComment = async (req, res, next) => {
     //Log to the comment to know better
     comment = await comment.populate("authorId", "email");
 
-    //shfdshfdsgfdsuygfeufgewy
-    console.log(comment);
-
     // flatten author
     res.status(201).json({
       id: comment._id,
@@ -40,9 +37,6 @@ exports.listComments = async (req, res, next) => {
     const comments = await Comment.find({ taskId })
       .populate("authorId", "email")
       .sort({ createdAt: 1 });
-
-    //bsfhsdfkjsfhsdbfgjerurekj
-    console.log(comments);
     
 
     res.json(
