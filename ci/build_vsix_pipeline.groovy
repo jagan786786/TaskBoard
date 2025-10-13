@@ -71,6 +71,11 @@ pipeline {
                         SET GIT_SSH_COMMAND=ssh -i %SSH_KEY% -o StrictHostKeyChecking=no
                         git config --global user.name "jenkins-bot"
                         git config --global user.email "jenkins-bot@example.com"
+
+                        echo ==== Checking Git Config ====
+                        git config --global --get user.name
+                        git config --global --get user.email
+                        echo =============================
                 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
