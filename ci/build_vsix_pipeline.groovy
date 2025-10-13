@@ -17,6 +17,15 @@ pipeline {
             steps {
                 echo "Checking out source branch ${BRANCH}"
                 git branch: "${BRANCH}", url: 'https://github.com/jagan786786/TaskBoard.git', credentialsId: 'github-token'
+                script {
+                    // Get the author of the latest commit
+                    def lastAuthor = bat(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    if (lastAuthor == "jenkins-bot") {
+                        echo "Last commit was by jenkins-bot. Skipping pipeline."
+                        currentBuild.result = 'SUCCESS'
+                        return
+                    }
+                }
             }
         }
 
