@@ -8,11 +8,11 @@ pipeline {
     }
 
     triggers {
-        pollSCM('* * * * *')
+        pollSCM('* * * * *') // optional — can replace with webhook
     }
 
-
     stages {
+
         stage('Checkout Source') {
             steps {
                 echo "Checking out source branch ${BRANCH}"
