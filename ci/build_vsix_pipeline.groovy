@@ -14,10 +14,26 @@ pipeline {
                 echo "Checking out source branch ${BRANCH}"
                 git branch: "${BRANCH}", url: 'https://github.com/jagan786786/TaskBoard.git', credentialsId: 'github-token'
                 script {
-                    // Get the author of the latest commit
+                    // Get author and changed files
                     def lastAuthor = bat(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    def changedFiles = bat(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim().split("\\r?\\n")
+        
+                    // Define ignored paths
+                    def ignoredPaths = ["package.json", "package-lock.json"]
+        
+                    // Check if all changed files are ignored
+                    def onlyIgnored = changedFiles.every { file ->
+                        ignoredPaths.any { ignored -> file.endsWith(ignored) }
+                    }
+        
                     if (lastAuthor == "jenkins-bot") {
-                        echo "Last commit was by jenkins-bot. Skipping pipeline."
+                        echo "Last commit by Jenkins bot — skipping build."
+                        currentBuild.result = 'SUCCESS'
+                        return
+                    }
+        
+                    if (onlyIgnored) {
+                        echo "Only ignored files changed (${changedFiles}). Skipping build."
                         currentBuild.result = 'SUCCESS'
                         return
                     }
@@ -80,7 +96,7 @@ pipeline {
                 
                         git add frontend\\vsix_package_versions\\*.vsix
                         git diff --cached --quiet || (
-                            git commit -m "chore: add VSIX package"
+                            git commit -m "chore: add VSIX package [ci skip]"
                             git pull --rebase origin main
                             git push origin main
                         )
@@ -150,7 +166,7 @@ pipeline {
 
                     call npm version %NEW_VERSION% --no-git-tag-version
                     git add package.json package-lock.json
-                    git commit -m "chore: bump version to %NEW_VERSION%" || echo "No version bump" 
+                    git commit -m "chore: bump version to %NEW_VERSION% [ci skip]" || echo "No version bump" 
                     git push origin %BRANCH%
                 
                 '''
