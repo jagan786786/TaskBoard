@@ -16,6 +16,9 @@ exports.addComment = async (req, res, next) => {
 
     let comment = await Comment.create({ taskId, authorId, body });
 
+    //fskjfsdkjfhsdkjfhskjfsadkfdskjfhsdjkfdsjkf
+    console.log(comment);
+
     //Log to the comment to know better
     comment = await comment.populate("authorId", "email");
 
@@ -37,6 +40,9 @@ exports.listComments = async (req, res, next) => {
     const comments = await Comment.find({ taskId })
       .populate("authorId", "email")
       .sort({ createdAt: 1 });
+
+    //hfbhsfbdskjfhdseruhyfejdasklasfhfjdk
+    console.log(commetns);
     
 
     res.json(
