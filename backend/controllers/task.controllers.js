@@ -35,9 +35,6 @@ exports.createTask = async (req, res, next) => {
       "email"
     );
 
-    //gshfjadferuyiufjdsifhsfsdf
-    console.log(populated);
-
     res.status(201).json(normalizeTask(populated));
   } catch (err) {
     next(err);
@@ -76,9 +73,6 @@ exports.listTasks = async (req, res, next) => {
     const tasks = await Task.find(filter)
       .populate("assigneeId", "email")
       .sort({ createdAt: -1 });
-
-    //JSBFDSJGBDJJFSDKFSDSFDSFDSJFSJ
-    console.log(tasks);
 
     res.json(tasks.map(normalizeTask));
   } catch (err) {
