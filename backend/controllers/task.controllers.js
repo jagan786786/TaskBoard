@@ -53,9 +53,6 @@ exports.getTask = async (req, res, next) => {
     const task = await Task.findById(id).populate("assigneeId", "email");
     if (!task) return res.status(404).json({ message: "Not found" });
 
-    //dcfvghjkmjnhygtfrdeswerfrtygujk
-    console.log(task);
-
     const comments = await Comment.find({ taskId: id })
       .populate("authorId", "email")
       .sort({ createdAt: 1 });
@@ -79,6 +76,9 @@ exports.listTasks = async (req, res, next) => {
     const tasks = await Task.find(filter)
       .populate("assigneeId", "email")
       .sort({ createdAt: -1 });
+
+    //JSBFDSJGBDJJFSDKFSDSFDSFDSJFSJ
+    console.log(tasks);
 
     res.json(tasks.map(normalizeTask));
   } catch (err) {
