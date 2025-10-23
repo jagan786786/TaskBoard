@@ -10,7 +10,7 @@ const commentRoutes = require('./routes/CommentRoutes');
 dotenv.config();
 
 connectToDb();
-
+// sample tyest1
 app.use(
   cors({
     origin: [
