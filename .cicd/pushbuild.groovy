@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'nodeLabel' }
 
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
@@ -51,7 +51,6 @@ pipeline {
         }
 
         stage('Setup Node & Install Dependencies') {
-            tools { nodejs 'node20' }
             steps {
                 bat '''
                     echo Setting up Node environment...
@@ -63,7 +62,6 @@ pipeline {
         }
 
         stage('Install VSCE CLI') {
-            tools { nodejs 'node20' }
             steps {
                 bat '''
                     echo Installing VSCE CLI...
@@ -74,7 +72,6 @@ pipeline {
         }
 
         stage('Package VSIX') {
-            tools { nodejs 'node20' }
             steps {
                 bat '''
                     cd frontend
@@ -150,7 +147,6 @@ pipeline {
         }
 
         stage('Bump Version') {
-            tools { nodejs 'node20' }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'JENKINS_SSH_KEY', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
@@ -179,101 +175,3 @@ pipeline {
         }
     }
 }
-
-
-
-stage('Commit VSIX to Main Repo') {
-    steps {
-        withCredentials([string(credentialsId: 'ALM_GITHUB_CREDS', variable: 'GITHUB_TOKEN')]) {
-            bat """
-                echo Using GitHub token for authentication
-                git config --global user.name "jenkins-bot"
-                git config --global user.email "jenkins-bot@example.com"
-                
-                REM Set remote URL with token
-                git remote set-url origin https://%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
-                
-                git add frontend\\vsix_package_versions\\*.vsix
-                git diff --cached --quiet || (
-                    git commit -m "chore: add VSIX package"
-                    git pull --rebase origin main
-                    git push origin main
-                )
-            """
-        }
-    }
-}
-
-stage('Push VSIX to External Repo') {
-    steps {
-        withCredentials([string(credentialsId: 'ALM_GITHUB_CREDS', variable: 'GITHUB_TOKEN')]) {
-            bat """
-                echo Using GitHub token for authentication
-                git config --global user.name "jenkins-bot"
-                git config --global user.email "jenkins-bot@example.com"
-                
-                REM Clone or update external repo using token
-                if not exist vsix_build_version (
-                    git clone https://%GITHUB_TOKEN%@github.com/jagan786786/task_board_version.git vsix_build_version
-                ) else (
-                    cd vsix_build_version
-                    git pull origin main
-                    cd ..
-                )
-                
-                if not exist vsix_build_version\\vsix_build_files mkdir vsix_build_version\\vsix_build_files
-                
-                for /f %%F in ('dir /b /o-d frontend\\vsix_package_versions\\*.vsix') do set LATEST_FILE=%%F & goto :break
-                :break
-                copy frontend\\vsix_package_versions\\%LATEST_FILE% vsix_build_version\\vsix_build_files\\%LATEST_FILE%
-                
-                cd vsix_build_version
-                git add vsix_build_files\\%LATEST_FILE%
-                git diff --cached --quiet || (
-                    git commit -m "chore: add VSIX %LATEST_FILE%"
-                    git push origin main
-                )
-                cd ..
-            """
-        }
-    }
-}
-
-
-
-stage('Bump Version') {
-    tools { nodejs 'node20' }
-    steps {
-        withCredentials([string(credentialsId: 'ALM_GITHUB_CREDS', variable: 'GITHUB_TOKEN')]) {
-            bat '''
-                echo Using GitHub token for authentication
-                git config --global user.name "jenkins-bot"
-                git config --global user.email "jenkins-bot@example.com"
-
-                REM Set remote URL with token
-                git remote set-url origin https://%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
-
-                cd frontend
-                for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
-
-                for /f "tokens=1,2,3 delims=." %%a in ("%VERSION%") do (
-                    set MAJOR=%%a
-                    set MINOR=%%b
-                    set PATCH=%%c
-                )
-                set /a PATCH+=1
-                set NEW_VERSION=%MAJOR%.%MINOR%.%PATCH%
-
-                call npm version %NEW_VERSION% --no-git-tag-version
-                git add package.json package-lock.json
-                git diff --cached --quiet || (
-                    git commit -m "chore: bump version to %NEW_VERSION%"
-                    git push origin %BRANCH%
-                )
-            '''
-        }
-    }
-}
-
-git remote set-url origin https://%GITHUB_TOKEN%@alm-github.systems.uk.hsbc/iWPB-HSBC-Intelligent-Automation/codegenie_vsext.git
-
