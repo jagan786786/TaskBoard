@@ -274,3 +274,6 @@ stage('Bump Version') {
         }
     }
 }
+
+git remote set-url origin https://%GITHUB_TOKEN%@alm-github.systems.uk.hsbc/iWPB-HSBC-Intelligent-Automation/codegenie_vsext.git
+
