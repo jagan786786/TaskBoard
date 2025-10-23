@@ -179,3 +179,62 @@ pipeline {
         }
     }
 }
+
+
+
+stage('Commit VSIX to Main Repo') {
+    steps {
+        withCredentials([string(credentialsId: 'ALM_GITHUB_CREDS', variable: 'GITHUB_TOKEN')]) {
+            bat """
+                echo Using GitHub token for authentication
+                git config --global user.name "jenkins-bot"
+                git config --global user.email "jenkins-bot@example.com"
+                
+                REM Set remote URL with token
+                git remote set-url origin https://%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
+                
+                git add frontend\\vsix_package_versions\\*.vsix
+                git diff --cached --quiet || (
+                    git commit -m "chore: add VSIX package"
+                    git pull --rebase origin main
+                    git push origin main
+                )
+            """
+        }
+    }
+}
+
+stage('Push VSIX to External Repo') {
+    steps {
+        withCredentials([string(credentialsId: 'ALM_GITHUB_CREDS', variable: 'GITHUB_TOKEN')]) {
+            bat """
+                echo Using GitHub token for authentication
+                git config --global user.name "jenkins-bot"
+                git config --global user.email "jenkins-bot@example.com"
+                
+                REM Clone or update external repo using token
+                if not exist vsix_build_version (
+                    git clone https://%GITHUB_TOKEN%@github.com/jagan786786/task_board_version.git vsix_build_version
+                ) else (
+                    cd vsix_build_version
+                    git pull origin main
+                    cd ..
+                )
+                
+                if not exist vsix_build_version\\vsix_build_files mkdir vsix_build_version\\vsix_build_files
+                
+                for /f %%F in ('dir /b /o-d frontend\\vsix_package_versions\\*.vsix') do set LATEST_FILE=%%F & goto :break
+                :break
+                copy frontend\\vsix_package_versions\\%LATEST_FILE% vsix_build_version\\vsix_build_files\\%LATEST_FILE%
+                
+                cd vsix_build_version
+                git add vsix_build_files\\%LATEST_FILE%
+                git diff --cached --quiet || (
+                    git commit -m "chore: add VSIX %LATEST_FILE%"
+                    git push origin main
+                )
+                cd ..
+            """
+        }
+    }
+}
