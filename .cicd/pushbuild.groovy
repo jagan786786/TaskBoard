@@ -238,3 +238,39 @@ stage('Push VSIX to External Repo') {
         }
     }
 }
+
+
+
+stage('Bump Version') {
+    tools { nodejs 'node20' }
+    steps {
+        withCredentials([string(credentialsId: 'ALM_GITHUB_CREDS', variable: 'GITHUB_TOKEN')]) {
+            bat '''
+                echo Using GitHub token for authentication
+                git config --global user.name "jenkins-bot"
+                git config --global user.email "jenkins-bot@example.com"
+
+                REM Set remote URL with token
+                git remote set-url origin https://%GITHUB_TOKEN%@github.com/jagan786786/TaskBoard.git
+
+                cd frontend
+                for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
+
+                for /f "tokens=1,2,3 delims=." %%a in ("%VERSION%") do (
+                    set MAJOR=%%a
+                    set MINOR=%%b
+                    set PATCH=%%c
+                )
+                set /a PATCH+=1
+                set NEW_VERSION=%MAJOR%.%MINOR%.%PATCH%
+
+                call npm version %NEW_VERSION% --no-git-tag-version
+                git add package.json package-lock.json
+                git diff --cached --quiet || (
+                    git commit -m "chore: bump version to %NEW_VERSION%"
+                    git push origin %BRANCH%
+                )
+            '''
+        }
+    }
+}
