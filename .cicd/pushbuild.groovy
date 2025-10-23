@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'nodeLabel' }
+    agent { label 'windows' }
 
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
