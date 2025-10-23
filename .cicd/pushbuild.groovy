@@ -61,15 +61,24 @@ pipeline {
             }
         }
 
-        stage('Install VSCE CLI') {
+        stage('Package VSIX') {
             steps {
                 bat '''
-                    echo Installing VSCE CLI...
-                    call npm install -g @vscode/vsce
-                    call vsce --version
+                    cd frontend
+                    for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
+                    echo Current Version is %VERSION%
+        
+                    echo Packaging VSIX using npx...
+                    npx @vscode/vsce package --no-dependencies
+                    ren *.vsix genie-vscode-hsbc-%VERSION%.vsix
+        
+                    if not exist vsix_package_versions mkdir vsix_package_versions
+                    move genie-vscode-hsbc-%VERSION%.vsix vsix_package_versions\\
+                    echo "VSIX created as genie-vscode-hsbc-%VERSION%.vsix"
                 '''
             }
         }
+
 
         stage('Package VSIX') {
             steps {
