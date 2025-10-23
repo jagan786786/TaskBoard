@@ -1,5 +1,7 @@
+def nodeLabel = pipelineParams?.nodeLabel ?: 'cm-linux'
 pipeline {
-    agent { label 'nodeLabel' }
+    agent { label nodeLabel }
+
 
     environment {
         PATH = "C:\\Windows\\System32;C:\\Windows;E:\\Git\\bin;E:\\Git\\cmd;E:\\Git\\usr\\bin"
