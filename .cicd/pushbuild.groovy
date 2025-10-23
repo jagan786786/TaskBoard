@@ -79,25 +79,6 @@ pipeline {
             }
         }
 
-
-        stage('Package VSIX') {
-            steps {
-                bat '''
-                    cd frontend
-                    for /f "tokens=*" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
-                    echo Current Version is %VERSION%
-
-                    echo Packaging VSIX...
-                    call vsce package --no-dependencies
-                    ren *.vsix genie-vscode-hsbc-%VERSION%.vsix
-
-                    if not exist vsix_package_versions mkdir vsix_package_versions
-                    move genie-vscode-hsbc-%VERSION%.vsix vsix_package_versions\\
-                    echo "VSIX created as genie-vscode-hsbc-%VERSION%.vsix"
-                '''
-            }
-        }
-
         stage('Commit VSIX to Main Repo') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'JENKINS_SSH_KEY', keyFileVariable: 'SSH_KEY')]) {
