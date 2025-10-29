@@ -1,0 +1,44 @@
+  stage('Push to GitHub Release') {
+      steps {
+        script {
+          // Extract version from package.json
+          def version = sh(script: "node -p \"require('./package.json').version\"", returnStdout: true).trim()
+          def tag = "v${version}"
+          def vsixFile = sh(script: "ls *.vsix", returnStdout: true).trim()
+
+          echo "Creating GitHub release for ${tag}"
+
+          // Create or update the release
+          sh """
+            curl -s -X POST https://api.github.com/repos/${REPO}/releases \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "tag_name": "${tag}",
+                "name": "Genie ${tag}",
+                "body": "Automated release from Jenkins",
+                "draft": false,
+                "prerelease": false
+              }' || true
+          """
+
+          // Get the release upload URL (GitHub returns templated URLs)
+          def uploadUrl = sh(
+            script: """
+              curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+              https://api.github.com/repos/${REPO}/releases/tags/${tag} \
+              | jq -r '.upload_url' | sed 's/{?name,label}//'
+            """,
+            returnStdout: true
+          ).trim()
+
+          // Upload the .vsix file as a release asset
+          sh """
+            curl -s -X POST "${uploadUrl}?name=${vsixFile}" \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @${vsixFile}
+          """
+        }
+      }
+    }
