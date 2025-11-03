@@ -30,3 +30,18 @@ export async function fetchLatestVersion(): Promise<string | null> {
     return null;
   }
 }
+
+
+
+import * as path from "path";
+import * as dotenv from "dotenv";
+
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
+console.log("GHE_USER:", process.env.GHE_USER);
+console.log("GHE_PASS:", process.env.GHE_PASS);
+Then run:
+
+bash
+Copy code
+npx ts-node src/testEnv.ts
