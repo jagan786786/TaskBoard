@@ -1,56 +1,34 @@
 import axios from "axios";
-import * as path from "path";
 import * as dotenv from "dotenv";
+import * as https from "https";
 
-// ✅ Load .env from project root (outside src)
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+dotenv.config({ path: "../../.env" });
 
-const GHE_USER = process.env.GHE_USER;
-const GHE_PASS = process.env.GHE_PASS;
+export async function fetchLatestVersion() {
+  const GHE_TOKEN = process.env.GHE_TOKEN;
+  const GHE_API_URL = process.env.GHE_API_URL;
 
-// ✅ Validate presence of credentials
-if (!GHE_USER || !GHE_PASS) {
-  console.error("❌ Missing GHE_USER or GHE_PASS in .env file.");
-}
+  if (!GHE_TOKEN || !GHE_API_URL) {
+    throw new Error("Missing GHE_TOKEN or GHE_API_URL in .env");
+  }
 
-// Your internal GitHub Enterprise repo release URL
-const REPO_RELEASE_URL =
-  "https://alm-github.systems.uk.hsbc/api/v3/repos/iWPB-HSBC-intelligent-Automation/codegenie_vsext_versions/releases/latest";
-
-/**
- * Fetch the latest version tag from HSBC GitHub Enterprise.
- */
-export async function fetchLatestVersion(): Promise<string | null> {
   try {
-    const response = await axios.get(REPO_RELEASE_URL, {
-      auth: {
-        username: GHE_USER || "",
-        password: GHE_PASS || "",
-      },
+    const response = await axios.get(GHE_API_URL, {
       headers: {
+        Authorization: `token ${GHE_TOKEN}`, // works for both classic & fine-grained PATs
         Accept: "application/vnd.github+json",
       },
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: true,
+      }),
     });
 
-    if (response.data && response.data.tag_name) {
-      const latest = response.data.tag_name.replace(/^v/, "");
-      console.log("✅ Latest version from repo:", latest);
-      return latest;
-    }
-
-    console.warn("⚠️ No tag_name found in API response.");
-    return null;
+    return response.data;
   } catch (error: any) {
-    console.error("❌ Failed to fetch latest version:", error.message);
-    return null;
+    console.error("Error fetching latest version:", error.message);
+    throw error;
   }
 }
-
-
-
-
-
-
 
 
 
