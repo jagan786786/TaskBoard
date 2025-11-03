@@ -87,8 +87,10 @@ function isVersionOutdated(local: string, remote: string): boolean {
 npx ts-node src/utils/api/versionAPI.ts
 
 
-curl -H "Authorization: token github_pat_11AABBCCDD1234567890EFGHIJKLMNOPQRS" \
-     -H "Accept: application/vnd.github+json" \
-     https://alm-github.systems.uk.hsbc/api/v3/repos/iWPB-HSBC-intelligent-Automation/codegenie_vsext_versions/releases/latest
+Invoke-RestMethod -Uri "https://alm-github.systems.uk.hsbc/api/v3/repos/iWPB-HSBC-intelligent-Automation/codegenie_vsext_versions/releases/latest" -Headers @{
+    Authorization = "token YOUR_TOKEN_HERE"
+    Accept = "application/vnd.github+json"
+}
+
 
 
