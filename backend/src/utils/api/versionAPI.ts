@@ -31,6 +31,22 @@ export async function fetchLatestVersion() {
 }
 
 
+test=======================================
+
+
+  import { fetchLatestVersion } from "./versionAPI.js";
+
+(async () => {
+  try {
+    console.log("🚀 Testing GitHub Enterprise API token authentication...");
+    const data = await fetchLatestVersion();
+
+    console.log("✅ Full API Response:", data);
+    console.log("🔖 Latest Release Version:", data.tag_name || data.name);
+  } catch (err) {
+    console.error("❌ Test failed:", err.message);
+  }
+})();
 
 
 
