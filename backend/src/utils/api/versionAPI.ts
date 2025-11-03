@@ -33,18 +33,48 @@ export async function fetchLatestVersion() {
 
 test=======================================
 
+import axios from "axios";
+import * as dotenv from "dotenv";
+import * as https from "https";
 
-  import { fetchLatestVersion } from "./versionAPI.js";
+// ✅ Load environment variables from your .env file
+// Adjust path if your .env is outside current folder
+dotenv.config({ path: "../../.env" });
 
+// 🚀 Main async function to test API
 (async () => {
-  try {
-    console.log("🚀 Testing GitHub Enterprise API token authentication...");
-    const data = await fetchLatestVersion();
+  const GHE_TOKEN = process.env.GHE_TOKEN;
+  const GHE_API_URL = process.env.GHE_API_URL;
 
-    console.log("✅ Full API Response:", data);
-    console.log("🔖 Latest Release Version:", data.tag_name || data.name);
+  if (!GHE_TOKEN || !GHE_API_URL) {
+    console.error("❌ Missing GHE_TOKEN or GHE_API_URL in .env");
+    process.exit(1);
+  }
+
+  console.log("🚀 Testing GitHub Enterprise API token authentication...");
+  console.log("🔗 API URL:", GHE_API_URL);
+
+  try {
+    const response = await axios.get(GHE_API_URL, {
+      headers: {
+        Authorization: `token ${GHE_TOKEN}`, // works for both classic & fine-grained PATs
+        Accept: "application/vnd.github+json",
+      },
+      // Optional: ignore SSL self-signed issues temporarily (not for prod)
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false,
+      }),
+    });
+
+    console.log("✅ Full API Response:\n", response.data);
+    const latestVersion = response.data.tag_name || response.data.name;
+    console.log("🔖 Latest Release Version:", latestVersion);
   } catch (err) {
-    console.error("❌ Test failed:", err.message);
+    console.error("❌ Error fetching version:", err.message);
+    if (err.response) {
+      console.error("📄 Response status:", err.response.status);
+      console.error("📦 Response data:", err.response.data);
+    }
   }
 })();
 
