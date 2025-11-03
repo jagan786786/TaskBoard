@@ -103,3 +103,8 @@ function isVersionOutdated(local: string, remote: string): boolean {
   if (r1 === l1 && r2 === l2 && r3 > l3) return true;
   return false;
 }
+
+
+
+npx ts-node src/utils/api/versionAPI.ts
+
