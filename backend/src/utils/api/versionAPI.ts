@@ -1,12 +1,14 @@
 import axios from "axios";
+import * as path from "path";
 import * as dotenv from "dotenv";
 
-dotenv.config();
+// ✅ Load .env file from project root (one folder above /src)
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const GHE_USER = process.env.GHE_USER;
 const GHE_PASS = process.env.GHE_PASS;
 
-// Internal GitHub Enterprise Releases API
+// Your internal GitHub Enterprise Releases API URL
 const REPO_RELEASE_URL =
   "https://alm-github.systems.uk.hsbc/api/v3/repos/iWPB-HSBC-intelligent-Automation/codegenie_vsext_versions/releases/latest";
 
@@ -20,7 +22,7 @@ export async function fetchLatestVersion(): Promise<string | null> {
     });
 
     if (response.data && response.data.tag_name) {
-      return response.data.tag_name.replace(/^v/, ""); // e.g., "v1.2.0" → "1.2.0"
+      return response.data.tag_name.replace(/^v/, ""); // e.g. "v1.2.0" → "1.2.0"
     }
     return null;
   } catch (error: any) {
