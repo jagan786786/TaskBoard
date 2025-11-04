@@ -23,7 +23,13 @@ export async function fetchLatestVersion() {
       }),
     });
 
-    return response.data;
+    const latestVersion = response.data?.tag_name || response.data?.name;
+    if (!latestVersion) {
+      throw new Error("No tag_name or name found in GitHub API response");
+    }
+  
+    // Remove leading 'v' if present
+    return latestVersion.startsWith("v") ? latestVersion.slice(1) : latestVersion;
   } catch (error: any) {
     console.error("Error fetching latest version:", error.message);
     throw error;
