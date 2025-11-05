@@ -1,55 +1,54 @@
-  stage('Push to GitHub Release') {
-      steps {
-        script {
-          // Extract version from package.json
-          def version = sh(script: "node -p \"require('./package.json').version\"", returnStdout: true).trim()
-          def tag = "v${version}"
-          def vsixFile = sh(script: "ls *.vsix", returnStdout: true).trim()
+1️⃣ Task: Store Reloaded Version in Reliable Tag
 
-          echo "Creating GitHub release for ${tag}"
+Description:
 
-          // Create or update the release
-          sh """
-            curl -s -X POST https://api.github.com/repos/${REPO}/releases \
-              -H "Authorization: token ${GITHUB_TOKEN}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "tag_name": "${tag}",
-                "name": "Genie ${tag}",
-                "body": "Automated release from Jenkins",
-                "draft": false,
-                "prerelease": false
-              }' || true
-          """
+After reloading the extension, store the current build version under a reliable GitHub tag in the external repository to track verified releases.
 
-          // Get the release upload URL (GitHub returns templated URLs)
-          def uploadUrl = sh(
-            script: """
-              curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
-              https://api.github.com/repos/${REPO}/releases/tags/${tag} \
-              | jq -r '.upload_url' | sed 's/{?name,label}//'
-            """,
-            returnStdout: true
-          ).trim()
+⸻
 
-          // Upload the .vsix file as a release asset
-          sh """
-            curl -s -X POST "${uploadUrl}?name=${vsixFile}" \
-              -H "Authorization: token ${GITHUB_TOKEN}" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @${vsixFile}
-          """
-        }
-      }
-    }
+2️⃣ Task: Retrieve Current Version from package.json
 
+Description:
 
-import { checkExtensionVersion } from "./commands/version/versionCheck";
+Implement logic to extract the current extension version directly from the package.json file for comparison and validation.
 
-export async function activate(context: vscode.ExtensionContext) {
-  const versionOK = await checkExtensionVersion(context);
-  if (!versionOK) return; // stop activation until user decides
+⸻
 
-  // rest of your code...
-  activateCodeCommands(context);
-}
+3️⃣ Task: Fetch Latest Version from GitHub Releases API
+
+Description:
+
+Use the GitHub API to fetch the latest tagged release version from the external repository for version comparison.
+
+⸻
+
+4️⃣ Task: Compare Installed VSIX Version with Latest Release
+
+Description:
+
+Compare the locally installed VSIX package version with the latest version fetched from GitHub and determine if an update is available.
+
+⸻
+
+5️⃣ Task: Create Webview for Version Difference Display
+
+Description:
+
+Develop a VS Code webview to visually display version differences between the installed extension and the latest available version.
+
+⸻
+
+6️⃣ Task: Add Token Field in URL Submission Page
+
+Description:
+
+Enhance the URL submission page UI by adding a token input field to allow authenticated API interactions.
+
+⸻
+
+7️⃣ Task: Manage Token Using Global State
+
+Description:
+
+Store the submitted token securely in VS Code global state and retrieve it for version comparison and API requests.
+ 
